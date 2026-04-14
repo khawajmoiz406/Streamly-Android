@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Streamly</string>
+    <string name="app_name_caption">A livestreaming hub</string>
+
+    <string name="ok">OK</string>
+    <string name="unknown_error">Unknown Error</string>
+    <string name="internet_error">You are not connected to internet. Please check your internet connection and try again.</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="permission_required_msg">Streamly needs the following permissions to work properly.</string>
+    <string name="camera_access">Camera Access</string>
+    <string name="camera_access_required">Camera Access Required</string>
+    <string name="camera_access_msg">To capture pictures and apply realtime filters on you snaps.</string>
+    <string name="video_recording">Video Recording</string>
+    <string name="video_recording_msg">To record video stories with live effect and overlays.</string>
+    <string name="microphone">Microphone</string>
+    <string name="microphone_msg">To capture audio alongside your video recordings.</string>
+    <string name="allow_access">Allow Access</string>
+    <string name="change_permission_msg">You can change the anytime in your app settings</string>
+    <string name="camera_access_required_msg">Camera access is required. Please allow camera access in your app settings.</string>
+    <string name="goto_settings">Goto Settings</string>
+    <string name="authentication_error">Authentication error. Session expired please login again</string>
+    <string name="authorization_error">You are not authorized to access this request.</string>
+    <string name="not_found_error">Resource not found.</string>
+    <string name="internal_server_error">Internal server error. Please try again later.</string>
+
+</resources>
