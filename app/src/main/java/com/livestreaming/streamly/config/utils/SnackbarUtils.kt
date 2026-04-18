@@ -63,7 +63,7 @@ object SnackbarUtils {
 
     @Composable
     private fun getSnackbarColor(snackbarType: SnackbarType?): Color = when (snackbarType) {
-        SnackbarType.Error -> MaterialTheme.colorScheme.errorContainer
+        SnackbarType.Error -> MaterialTheme.colorScheme.error
         SnackbarType.Warning -> Color.Yellow
         else -> MaterialTheme.colorScheme.primary
     }

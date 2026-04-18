@@ -157,6 +157,7 @@ fun LoginScreen(viewModel: LoginViewModel = hiltViewModel()) {
                 buttonColor = Color.Transparent,
                 onClick = { viewModel.login(AccountType.Google) },
                 label = stringResource(R.string.sign_in_with_google),
+                labelColor = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .height(35.sdp)
                     .border(

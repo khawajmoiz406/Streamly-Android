@@ -32,6 +32,7 @@ import com.livestreaming.streamly.config.navigation.Destination
 import com.livestreaming.streamly.config.theme.MyApplicationTheme
 import com.livestreaming.streamly.config.theme.disabledContent
 import com.livestreaming.streamly.config.utils.AppCompositionLocals.LocalParentNavController
+import com.livestreaming.streamly.config.utils.AppUtils
 import com.livestreaming.streamly.config.utils.Constants
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
@@ -120,8 +121,12 @@ fun SplashScreen() {
 }
 
 private suspend fun handleSplash(navController: NavController) {
+    val user = AppUtils.getCurrentUser(navController.context)
+
     delay(Constants.SPLASH_DELAY)
-    navController.navigate(Destination.AuthGraph) {
+
+    val route = if (user == null) Destination.AuthGraph else Destination.Home
+    navController.navigate(route) {
         popUpTo(Destination.Splash) { inclusive = true }
         launchSingleTop = true
     }

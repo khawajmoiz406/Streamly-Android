@@ -1,5 +1,5 @@
 package com.livestreaming.streamly.core.pref
 
 object SharedPrefKeys {
-    const val NOTIFICATION_PERMISSION_ASKED = "isNotificationPermissionAsked"
+    const val APP_THEME = "appTheme"
 }

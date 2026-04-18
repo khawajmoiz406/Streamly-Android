@@ -136,7 +136,7 @@ private suspend fun handleEvents(navController: NavController, viewModel: Regist
 
             is RegisterEvents.OnRegisterSuccess -> {
                 navController.navigate(Destination.MainGraph) {
-                    popUpTo(Destination.Login) { inclusive = true }
+                    popUpTo(Destination.AuthGraph) { inclusive = true }
                     launchSingleTop = true
                 }
             }

@@ -52,7 +52,7 @@ fun AuthHeader(heading: String = stringResource(R.string.app_name), subHeading: 
                 fontSize = 18.ssp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.onSurface,
             )
 
             subHeading?.let {

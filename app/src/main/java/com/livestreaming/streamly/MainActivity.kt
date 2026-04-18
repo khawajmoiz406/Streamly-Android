@@ -16,7 +16,9 @@ import androidx.compose.ui.platform.LocalView
 import androidx.navigation.compose.rememberNavController
 import com.livestreaming.streamly.config.navigation.NavGraph
 import com.livestreaming.streamly.config.theme.MyApplicationTheme
+import com.livestreaming.streamly.config.theme.ThemeState
 import com.livestreaming.streamly.config.utils.AppCompositionLocals.LocalParentNavController
+import com.livestreaming.streamly.config.utils.AppUtils
 import com.livestreaming.streamly.config.utils.SnackbarUtils
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -34,8 +36,10 @@ fun MainScreen() {
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val isDarkTheme = AppUtils.isDarkTheme(navController.context)
 
     SnackbarUtils.init(snackbarHostState, scope)
+    ThemeState.darkTheme.value = isDarkTheme
 
     (LocalView.current.context as Activity).window.apply {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

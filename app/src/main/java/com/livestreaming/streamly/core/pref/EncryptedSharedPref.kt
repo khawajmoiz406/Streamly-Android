@@ -53,12 +53,12 @@ class EncryptedSharedPref private constructor(context: Context) {
         prefs.edit { remove(typeToken.type.toString()) }
     }
 
-    fun putBool(key: String, value: Boolean) {
-        prefs.edit { putBoolean(key, value) }
+    fun putInt(key: String, value: Int) {
+        prefs.edit { putInt(key, value) }
     }
 
-    fun getBool(key: String): Boolean {
-        return prefs.getBoolean(key, false)
+    fun getInt(key: String): Int {
+        return prefs.getInt(key, -1)
     }
 
     fun clearAll() {

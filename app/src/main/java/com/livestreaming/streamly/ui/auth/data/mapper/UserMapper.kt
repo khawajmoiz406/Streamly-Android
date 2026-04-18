@@ -7,8 +7,8 @@ import com.livestreaming.streamly.core.model.User
 fun FirebaseUser.toUser(type: AccountType): User = User(
     id = this.uid,
     email = this.email,
-    accountType = type,
     name = this.displayName,
+    accountType = type.value,
     phoneNumber = this.phoneNumber,
     avatar = this.photoUrl?.toString(),
 )

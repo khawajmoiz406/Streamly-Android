@@ -31,6 +31,14 @@ object ThemeState {
 sealed class ThemeMode(val value: Int) {
     data object Dark : ThemeMode(1)
     data object Light : ThemeMode(2)
+
+    companion object {
+        fun fromValue(value: Int): ThemeMode? = when (value) {
+            1 -> Dark
+            2 -> Light
+            else -> null
+        }
+    }
 }
 
 private val LightColorScheme = lightColorScheme(
