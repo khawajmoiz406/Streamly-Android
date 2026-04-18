@@ -4,12 +4,16 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -21,24 +25,32 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import com.livestreaming.streamly.config.components.image.SvgImage
+import com.livestreaming.streamly.config.theme.disabledContent
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    value: String,
+    label: String? = null,
+    onValueChange: (String) -> Unit,
     placeholder: String = "",
     leadingIcon: String? = null,
     trailingIcon: String? = null,
@@ -49,7 +61,7 @@ fun AppTextField(
     fontSize: TextUnit = 13.ssp,
     height: Dp = 35.sdp,
     borderColor: Color = Color.Transparent,
-    borderWidth: Dp = 1.sdp,
+    borderWidth: Dp = 0.5.dp,
     shape: RoundedCornerShape = RoundedCornerShape(10.sdp),
     imeAction: ImeAction = ImeAction.Done,
     keyboardType: KeyboardType = KeyboardType.Text,
@@ -65,12 +77,29 @@ fun AppTextField(
         disabledContainerColor = containerColor,
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
-        disabledIndicatorColor = Color.Transparent
+        disabledIndicatorColor = Color.Transparent,
+        cursorColor = MaterialTheme.colorScheme.primary
     ),
 ) {
-    val errorBorderColor = if (error != null) MaterialTheme.colorScheme.error else borderColor
+    val isFocused by interactionSource.collectIsFocusedAsState()
+    val errorBorderColor = when {
+        error != null -> MaterialTheme.colorScheme.error
+        isFocused -> MaterialTheme.colorScheme.secondary
+        else -> borderColor
+    }
 
     Column(modifier = modifier) {
+        label?.let {
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 11.ssp,
+            )
+
+            Spacer(Modifier.height(2.sdp))
+        }
+
+
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
@@ -79,6 +108,7 @@ fun AppTextField(
             readOnly = readOnly,
             visualTransformation = visualTransformation,
             interactionSource = interactionSource,
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(height)
@@ -118,24 +148,31 @@ fun AppTextField(
                         {
                             SvgImage(
                                 asset = it,
-                                color = MaterialTheme.colorScheme.onSurface,
+                                color = MaterialTheme.colorScheme.disabledContent,
                                 modifier = Modifier.size(15.sdp)
                             )
                         }
                     },
                     trailingIcon = trailingIcon?.let {
                         {
-                            SvgImage(
-                                asset = it,
-                                color = MaterialTheme.colorScheme.onSurface,
+                            Box(
+                                contentAlignment = Alignment.Center,
                                 modifier = Modifier
-                                    .size(15.sdp)
+                                    .size(30.sdp)
                                     .then(
                                         if (onTrailingIconClick != null)
-                                            Modifier.clickable { onTrailingIconClick() }
+                                            Modifier
+                                                .clip(CircleShape)
+                                                .clickable { onTrailingIconClick() }
                                         else Modifier
                                     )
-                            )
+                            ) {
+                                SvgImage(
+                                    asset = it,
+                                    color = MaterialTheme.colorScheme.disabledContent,
+                                    modifier = Modifier.size(15.sdp)
+                                )
+                            }
                         }
                     },
                 )

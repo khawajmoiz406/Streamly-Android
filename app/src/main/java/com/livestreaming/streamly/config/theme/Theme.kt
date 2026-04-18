@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 object ThemeState {
-    val darkTheme = mutableStateOf(false)
+    val darkTheme = mutableStateOf(true)
 }
 
 sealed class ThemeMode(val value: Int) {
@@ -36,15 +36,17 @@ sealed class ThemeMode(val value: Int) {
 private val LightColorScheme = lightColorScheme(
     primary = Green,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFF0B5C45),
-    onPrimaryContainer = Color(0xFFD6FFF4)
+
+    secondary = Orange,
+    onSecondary = Color.White,
 )
 
 private val DarkColorScheme = darkColorScheme(
     primary = Green,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFF0B5C45),
-    onPrimaryContainer = Color(0xFFD6FFF4)
+
+    secondary = Orange,
+    onSecondary = Color.White,
 )
 
 val ColorScheme.disabledContent: Color
@@ -72,7 +74,7 @@ fun MyApplicationTheme(
 @Composable
 @Preview(showBackground = false)
 private fun LightColorSchemePreview() {
-    val colors = LightColorScheme
+    val colors = DarkColorScheme
 
     Column(
         modifier = Modifier

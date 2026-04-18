@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -5,6 +7,11 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.google.services)
+}
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) load(file.inputStream())
 }
 
 android {
@@ -19,6 +26,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"${localProperties["CLOUDINARY_CLOUD_NAME"]}\"")
+        buildConfigField("String", "CLOUDINARY_API_KEY",    "\"${localProperties["CLOUDINARY_API_KEY"]}\"")
+        buildConfigField("String", "CLOUDINARY_API_SECRET", "\"${localProperties["CLOUDINARY_API_SECRET"]}\"")
     }
 
     buildTypes {
@@ -57,6 +68,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.ui.sizing.sdp)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.libphonenumber)
     implementation(libs.gson)
 
     //Test
@@ -88,7 +100,11 @@ dependencies {
     implementation(libs.security.crypto)
 
     //Firebase
-    platform (libs.firebase.bom)
+    platform(libs.firebase.bom)
+    implementation(libs.googleid)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
+
+    //Cloudinary - For image storing online
+    implementation(libs.cloudinary)
 }

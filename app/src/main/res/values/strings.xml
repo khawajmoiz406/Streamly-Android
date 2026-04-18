@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Streamly</string>
-    <string name="app_name_caption">A livestreaming hub</string>
+    <string name="app_name_caption">Go live. Connect. Inspire.</string>
+    <string name="default_web_client_id">240239283034-4tp8s5n6s88ov4f2qhs4hkbbf7bhum30.apps.googleusercontent.com</string>
 
     <string name="ok">OK</string>
     <string name="unknown_error">Unknown Error</string>
@@ -22,5 +23,45 @@
     <string name="authorization_error">You are not authorized to access this request.</string>
     <string name="not_found_error">Resource not found.</string>
     <string name="internal_server_error">Internal server error. Please try again later.</string>
+
+    <string name="invalid_email">Invalid email address</string>
+    <string name="invalid_phone_number">Invalid phone number</string>
+    <string name="field_is_required">This field is required</string>
+    <string name="atleast_two_characters_msg">Field must be at least 2 characters</string>
+    <string name="must_be_less_than_fifty_characters">Field must be at least less than 50 characters</string>
+    <string name="password_min_eight_characters">Password must be at least 8 characters</string>
+    <string name="password_must_contain_uppercase">Password must contain at least one uppercase letter</string>
+    <string name="password_must_contain_lowercase">Password must contain at least one lowercase letter</string>
+    <string name="password_must_contain_digit">Password must contain at least one number</string>
+    <string name="password_must_contain_special_character">Password must contain at least one special character</string>
+    <string name="reset_link_sent">We\'ve sent a password reset link to your email. Please check your inbox.</string>
+    <string name="passwords_must_match">Passwords must match with each other</string>
+
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="email_hint">you@example.com</string>
+    <string name="password_hint">●●●●●●●●</string>
+    <string name="login">Login</string>
+    <string name="continue_with">or continue with</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="dont_have_an_account">Don\'t have an account?</string>
+    <string name="sign_up">Sign up</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="reset_password_msg">Enter your email address and we\'ll send you a reset link.</string>
+    <string name="send_reset_link">Send Reset Link</string>
+
+    <string name="create_your_account">Create your account</string>
+    <string name="tap_to_upload_profile_picture">Tap to upload a profile photo</string>
+    <string name="create_account_msg">Join Streamly and go live in minutes.</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="create_account">Create Account</string>
+    <string name="full_name">Full Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="phone_number_hint">+XXX XX XXX XXXX</string>
+    <string name="select_a_photo">Select a Photo</string>
+    <string name="choose_from_gallery">Choose from Gallery</string>
+    <string name="take_a_photo">Take a Photo</string>
 
 </resources>

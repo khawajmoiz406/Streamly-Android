@@ -19,22 +19,13 @@ object PermissionUtils {
         Manifest.permission.RECORD_AUDIO,
     )
 
-    val android13Permissions
-        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arrayOf(
-                Manifest.permission.READ_MEDIA_VIDEO,
-                Manifest.permission.READ_MEDIA_IMAGES,
-                Manifest.permission.READ_MEDIA_AUDIO,
-            )
-        } else emptyArray()
-
     val legacyStoragePermissions
         get() = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         } else emptyArray()
 
     val allPermissions: Array<String>
-        get() = corePermissions + android13Permissions + legacyStoragePermissions
+        get() = corePermissions + legacyStoragePermissions
 
     fun isGranted(context: Context, permission: String): Boolean {
         return ContextCompat.checkSelfPermission(
@@ -80,5 +71,22 @@ object PermissionUtils {
             data = Uri.fromParts("package", context.packageName, null)
         }
         context.startActivity(intent)
+    }
+
+    fun handlePermissionResult(
+        activity: Activity,
+        result: Map<String, Boolean>,
+        onGranted: () -> Unit,
+        onDenied: () -> Unit,
+        onPermanentlyDenied: () -> Unit
+    ) {
+        val deniedPermissions = result.filter { (_, granted) -> !granted }
+        if (deniedPermissions.isEmpty()) return onGranted.invoke()
+        val permanentlyDeniedPermissions = deniedPermissions.any { (permission, granted) ->
+            !granted && isPermanentlyDenied(activity, permission)
+        }
+
+        if (permanentlyDeniedPermissions) return onPermanentlyDenied.invoke()
+        return onDenied.invoke()
     }
 }

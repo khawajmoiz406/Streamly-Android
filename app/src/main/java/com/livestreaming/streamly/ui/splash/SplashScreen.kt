@@ -30,6 +30,7 @@ import com.livestream.streamly.R
 import com.livestreaming.streamly.config.components.image.SvgImage
 import com.livestreaming.streamly.config.navigation.Destination
 import com.livestreaming.streamly.config.theme.MyApplicationTheme
+import com.livestreaming.streamly.config.theme.disabledContent
 import com.livestreaming.streamly.config.utils.AppCompositionLocals.LocalParentNavController
 import com.livestreaming.streamly.config.utils.Constants
 import ir.kaaveh.sdpcompose.sdp
@@ -105,13 +106,22 @@ fun SplashScreen() {
                 modifier = Modifier.scale(textScale.value),
                 color = MaterialTheme.colorScheme.onPrimary,
             )
+
+            Text(
+                text = stringResource(R.string.app_name_caption),
+                color = MaterialTheme.colorScheme.disabledContent,
+                fontSize = 11.ssp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.scale(textScale.value),
+            )
         }
     }
 }
 
 private suspend fun handleSplash(navController: NavController) {
     delay(Constants.SPLASH_DELAY)
-    navController.navigate(Destination.Home) {
+    navController.navigate(Destination.AuthGraph) {
         popUpTo(Destination.Splash) { inclusive = true }
         launchSingleTop = true
     }
