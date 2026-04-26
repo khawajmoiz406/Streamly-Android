@@ -105,6 +105,10 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
 
+    //Agora SDK
+    implementation(libs.agora.rtc)
+
+
     //Cloudinary - For image storing online
     implementation(libs.cloudinary)
 }

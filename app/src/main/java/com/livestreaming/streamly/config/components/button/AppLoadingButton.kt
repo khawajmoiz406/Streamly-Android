@@ -15,11 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import com.livestream.streamly.R
 import com.livestreaming.streamly.config.components.image.SvgImage
-import com.livestreaming.streamly.config.theme.disabledContent
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
@@ -29,6 +27,7 @@ fun AppLoadingButton(
     label: String,
     loading: Boolean,
     onClick: () -> Unit,
+    fontSize: TextUnit? = null,
     leadingIcon: String? = null,
     trailingIcon: String? = null,
     leadingIconColor: Color? = null,
@@ -37,9 +36,8 @@ fun AppLoadingButton(
     labelColor: Color = MaterialTheme.colorScheme.onPrimary,
     buttonColor: Color = MaterialTheme.colorScheme.primary
 ) {
-    stringResource(R.string.login)
     Button(
-        onClick = { if(!loading) onClick.invoke() },
+        onClick = { if (!loading) onClick.invoke() },
         shape = shape,
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues.Zero,
@@ -59,7 +57,7 @@ fun AppLoadingButton(
 
                 Text(
                     text = label,
-                    fontSize = 13.ssp,
+                    fontSize = fontSize ?: 13.ssp,
                     color = labelColor
                 )
 

@@ -1,7 +1,6 @@
-package com.livestreaming.streamly.ui.home.presentation.components
+package com.livestreaming.streamly.ui.setup.presentation.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -63,7 +60,7 @@ fun PermissionsRequiredContent(onAllow: () -> Unit) {
             ) {
                 SvgImage(
                     asset = "shield",
-                    color = MaterialTheme.colorScheme.primaryContainer,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(22.sdp, 22.sdp)
                 )
             }
@@ -103,14 +100,6 @@ fun PermissionsRequiredContent(onAllow: () -> Unit) {
                 Spacer(Modifier.height(10.sdp))
 
                 HeadingValue(
-                    stringResource(R.string.video_recording),
-                    stringResource(R.string.video_recording_msg),
-                    "video"
-                )
-
-                Spacer(Modifier.height(10.sdp))
-
-                HeadingValue(
                     stringResource(R.string.microphone),
                     stringResource(R.string.microphone_msg),
                     "microphone"
@@ -135,59 +124,15 @@ fun PermissionsRequiredContent(onAllow: () -> Unit) {
                 Spacer(Modifier.height(10.sdp))
 
                 Text(
-                    stringResource(R.string.change_permission_msg),
+                    stringResource(R.string.consent_msg),
                     fontSize = 9.ssp,
                     lineHeight = 9.ssp,
+                    textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.disabledContent,
                 )
 
                 Spacer(Modifier.height(15.sdp))
             }
-        }
-    }
-}
-
-@Composable
-private fun Header(onCancelClicked: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .background(
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                shape = RoundedCornerShape(topStart = 12.sdp, topEnd = 12.sdp)
-            )
-            .fillMaxWidth()
-            .height(100.sdp)
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .size(30.sdp)
-                .clip(CircleShape)
-                .clickable { onCancelClicked.invoke() }
-        ) {
-            SvgImage(
-                asset = "close",
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(15.sdp)
-            )
-        }
-
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(55.sdp)
-                .background(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                    shape = CircleShape
-                )
-        ) {
-            SvgImage(
-                asset = "notification",
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(30.sdp)
-            )
         }
     }
 }
@@ -199,7 +144,7 @@ private fun HeadingValue(heading: String, value: String, icon: String) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 shape = RoundedCornerShape(10.sdp)
             )
             .padding(10.sdp)
@@ -209,13 +154,13 @@ private fun HeadingValue(heading: String, value: String, icon: String) {
             modifier = Modifier
                 .size(32.sdp)
                 .background(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
                     shape = RoundedCornerShape(8.sdp)
                 )
         ) {
             SvgImage(
                 asset = icon,
-                color = MaterialTheme.colorScheme.primaryContainer,
+                color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(18.sdp, 18.sdp)
             )
         }

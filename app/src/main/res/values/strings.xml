@@ -10,13 +10,11 @@
     <string name="permission_required_msg">Streamly needs the following permissions to work properly.</string>
     <string name="camera_access">Camera Access</string>
     <string name="camera_access_required">Camera Access Required</string>
-    <string name="camera_access_msg">To capture pictures and apply realtime filters on you snaps.</string>
-    <string name="video_recording">Video Recording</string>
-    <string name="video_recording_msg">To record video stories with live effect and overlays.</string>
+    <string name="camera_access_msg">So your viewers can see you live during the broadcast.</string>
     <string name="microphone">Microphone</string>
-    <string name="microphone_msg">To capture audio alongside your video recordings.</string>
+    <string name="microphone_msg">So your audience can hear you clearly while you stream.</string>
     <string name="allow_access">Allow Access</string>
-    <string name="change_permission_msg">You can change the anytime in your app settings</string>
+    <string name="consent_msg">We never record or store your camera or microphone data without your consent.</string>
     <string name="camera_access_required_msg">Camera access is required. Please allow camera access in your app settings.</string>
     <string name="goto_settings">Goto Settings</string>
     <string name="authentication_error">Authentication error. Session expired please login again</string>
@@ -63,5 +61,17 @@
     <string name="select_a_photo">Select a Photo</string>
     <string name="choose_from_gallery">Choose from Gallery</string>
     <string name="take_a_photo">Take a Photo</string>
+    <string name="live">Live</string>
+    <string name="home">Home</string>
+    <string name="profile">Profile</string>
+
+    <string name="stream_title">Stream Title</string>
+    <string name="stream_title_hint">What\'s your stream about?</string>
+    <string name="stream_description">Description (optional)</string>
+    <string name="stream_description_hint">Tell viewer what to except</string>
+    <string name="start_stream">Start Stream</string>
+    <string name="setting_things_up">Setting things up</string>
+    <string name="paused">Paused</string>
+    <string name="end_stream">End Stream</string>
 
 </resources>

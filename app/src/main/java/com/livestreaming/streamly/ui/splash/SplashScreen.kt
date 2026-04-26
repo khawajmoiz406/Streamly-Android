@@ -125,7 +125,7 @@ private suspend fun handleSplash(navController: NavController) {
 
     delay(Constants.SPLASH_DELAY)
 
-    val route = if (user == null) Destination.AuthGraph else Destination.Home
+    val route = if (user == null) Destination.AuthGraph else Destination.Dashboard
     navController.navigate(route) {
         popUpTo(Destination.Splash) { inclusive = true }
         launchSingleTop = true

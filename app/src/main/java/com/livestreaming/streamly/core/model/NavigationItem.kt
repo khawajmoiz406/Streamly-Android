@@ -7,6 +7,4 @@ data class NavigationItem(
     val name: Int,
     val route: Any,
     val icon: String,
-    val tint: Color? = null,
-    val showToolbar: Boolean = false,
 ) : Serializable

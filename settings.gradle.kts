@@ -19,6 +19,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = URI("https://jitpack.io") }
+        maven { url = uri("https://repo.agora.io/artifactory/agora-releases") }
     }
 }
 

@@ -1,4 +1,4 @@
-package com.livestreaming.streamly.ui.home.presentation.components
+package com.livestreaming.streamly.ui.setup.presentation.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

@@ -1,5 +1,6 @@
 package com.livestreaming.streamly.config.navigation
 
+import com.livestreaming.streamly.core.model.Stream
 import kotlinx.serialization.Serializable
 
 object Destination {
@@ -18,9 +19,23 @@ object Destination {
     @Serializable
     data object Register
 
+    //Bottom nav routes
+    @Serializable
+    data object BottomNavGraph
+    @Serializable
+    data object Home
+    @Serializable
+    data object StreamSetup
+    @Serializable
+    data object Profile
+
     //Main routes
     @Serializable
     data object MainGraph
     @Serializable
-    data object Home
+    data object Dashboard
+    @Serializable
+    data object StreamViewer
+    @Serializable
+    data class StreamBroadcast(val streamId: String)
 }
