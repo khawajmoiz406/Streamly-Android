@@ -3,8 +3,9 @@ package com.livestreaming.streamly.ui.broadcast.data.remote
 import android.content.Context
 import com.google.firebase.firestore.FirebaseFirestore
 import com.livestreaming.streamly.core.model.Stream
+import com.livestreaming.streamly.core.model.StreamStatus
 import com.livestreaming.streamly.core.remote.ApiException
-import com.livestreaming.streamly.core.remote.Collections
+import com.livestreaming.streamly.core.remote.Collections.STREAMS
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -16,8 +17,13 @@ class BroadcastRemoteDataSource @Inject constructor(@param:ApplicationContext pr
     private val firestore = FirebaseFirestore.getInstance()
 
     fun observeStream(streamId: String): Flow<Stream?> = callbackFlow {
+        if (streamId.isBlank()) {
+            close(IllegalArgumentException("streamId cannot be empty"))
+            return@callbackFlow
+        }
+
         val listener = firestore
-            .collection(Collections.STREAMS)
+            .collection(STREAMS)
             .document(streamId)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
@@ -29,57 +35,60 @@ class BroadcastRemoteDataSource @Inject constructor(@param:ApplicationContext pr
         awaitClose { listener.remove() }
     }
 
-    suspend fun goLive(stream: Stream): Void = try {
-        firestore
-            .document(stream.id)
-            .update(
-                mapOf(
-                    "isLive" to stream.isLive,
-                    "agoraChannelId" to stream.agoraChannelId,
-                    "startedAt" to stream.startedAt,
-                )
-            )
-            .await()
+    suspend fun startStream(stream: Stream): Stream = try {
+        val docRef = firestore.collection(STREAMS).document()
+        val streamId = docRef.id
+
+        val updateStream = stream.copy(id = streamId)
+        docRef.set(updateStream).await()
+
+        updateStream
     } catch (e: Exception) {
         throw ApiException.UnknownException(context, e.message ?: "Starting stream failed")
     }
 
-    suspend fun endStream(stream: Stream): Void = try {
+    suspend fun endStream(stream: Stream): Void? = try {
         firestore
+            .collection(STREAMS)
             .document(stream.id)
             .update(
                 mapOf(
-                    "isLive" to stream.isLive,
+                    "status" to StreamStatus.Ended,
                     "endedAt" to stream.endedAt,
+                    "status" to stream.status
                 )
             )
             .await()
     } catch (e: Exception) {
+        print(e)
         throw ApiException.UnknownException(context, e.message ?: "Starting stream failed")
     }
 
-    suspend fun toggleMic(stream: Stream): Void = try {
+    suspend fun toggleMic(stream: Stream): Void? = try {
         firestore
+            .collection(STREAMS)
             .document(stream.id)
-            .update(mapOf("isMute" to stream.isMuted))
+            .update(mapOf("muted" to stream.muted))
             .await()
     } catch (e: Exception) {
         throw ApiException.UnknownException(context, e.message ?: "Toggle mic failed")
     }
 
-    suspend fun toggleCamera(stream: Stream): Void = try {
+    suspend fun toggleCamera(stream: Stream): Void? = try {
         firestore
+            .collection(STREAMS)
             .document(stream.id)
-            .update(mapOf("isCameraOff" to stream.isCameraOff))
+            .update(mapOf("cameraOff" to stream.cameraOff))
             .await()
     } catch (e: Exception) {
         throw ApiException.UnknownException(context, e.message ?: "Toggle camera failed")
     }
 
-    suspend fun toggleStatus(stream: Stream): Void = try {
+    suspend fun toggleStatus(streamId: String, status: StreamStatus): Void? = try {
         firestore
-            .document(stream.id)
-            .update(mapOf("status" to stream.status))
+            .collection(STREAMS)
+            .document(streamId)
+            .update(mapOf("status" to status.value))
             .await()
     } catch (e: Exception) {
         throw ApiException.UnknownException(context, e.message ?: "Toggle camera failed")

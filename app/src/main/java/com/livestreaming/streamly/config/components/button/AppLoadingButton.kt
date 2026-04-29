@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.livestreaming.streamly.config.components.image.SvgImage
+import com.livestreaming.streamly.config.theme.disabledContainer
+import com.livestreaming.streamly.config.theme.disabledContent
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
@@ -27,6 +29,7 @@ fun AppLoadingButton(
     label: String,
     loading: Boolean,
     onClick: () -> Unit,
+    enabled: Boolean = true,
     fontSize: TextUnit? = null,
     leadingIcon: String? = null,
     trailingIcon: String? = null,
@@ -39,16 +42,20 @@ fun AppLoadingButton(
     Button(
         onClick = { if (!loading) onClick.invoke() },
         shape = shape,
+        enabled = enabled,
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues.Zero,
-        colors = ButtonDefaults.buttonColors().copy(containerColor = buttonColor)
+        colors = ButtonDefaults.buttonColors().copy(
+            containerColor = buttonColor,
+            disabledContainerColor = MaterialTheme.colorScheme.disabledContainer
+        )
     ) {
         when (loading) {
             false -> {
                 leadingIcon?.let {
                     SvgImage(
                         asset = it,
-                        color = leadingIconColor,
+                        color = if (!enabled) MaterialTheme.colorScheme.disabledContent else leadingIconColor,
                         modifier = Modifier.size(15.sdp)
                     )
 
@@ -58,7 +65,7 @@ fun AppLoadingButton(
                 Text(
                     text = label,
                     fontSize = fontSize ?: 13.ssp,
-                    color = labelColor
+                    color = if (!enabled) MaterialTheme.colorScheme.disabledContent else labelColor,
                 )
 
                 trailingIcon?.let {
@@ -66,7 +73,7 @@ fun AppLoadingButton(
 
                     SvgImage(
                         asset = it,
-                        color = trailingIconColor,
+                        color = if (!enabled) MaterialTheme.colorScheme.disabledContent else trailingIconColor,
                         modifier = Modifier.size(15.sdp)
                     )
                 }

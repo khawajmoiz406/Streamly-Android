@@ -73,5 +73,6 @@
     <string name="setting_things_up">Setting things up</string>
     <string name="paused">Paused</string>
     <string name="end_stream">End Stream</string>
+    <string name="ended">Ended</string>
 
 </resources>

@@ -16,7 +16,7 @@ object Constants {
         ),
         NavigationItem(
             name = R.string.live,
-            route = Destination.StreamSetup,
+            route = Destination.StreamBroadcast,
             icon = "live",
         ),
         NavigationItem(

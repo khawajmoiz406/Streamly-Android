@@ -24,6 +24,8 @@ import com.livestream.streamly.R
 import com.livestreaming.streamly.config.components.button.AppLoadingButton
 import com.livestreaming.streamly.config.components.image.SvgImage
 import com.livestreaming.streamly.config.theme.MyApplicationTheme
+import com.livestreaming.streamly.config.theme.disabledContainer
+import com.livestreaming.streamly.config.theme.disabledContent
 import com.livestreaming.streamly.core.model.StreamStatus
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
@@ -36,7 +38,6 @@ fun BoxScope.BroadcastBottomOverlay(
     status: StreamStatus?,
     onMicrophoneClicked: () -> Unit,
     onCameraClicked: () -> Unit,
-    onPlayPauseClicked: () -> Unit,
     onChangeCameraClicked: () -> Unit,
     onEndClicked: () -> Unit,
 ) {
@@ -48,26 +49,20 @@ fun BoxScope.BroadcastBottomOverlay(
             .align(Alignment.BottomCenter)
     ) {
         IconButton(
-            icon = if (isMuted) "mirco_phone_disable" else "micro_phone",
-            bg = if (isMuted) Color.Red else Color.Transparent,
+            icon = if (isMuted) "micro_phone_disable" else "micro_phone",
+            bg = if (isMuted) MaterialTheme.colorScheme.errorContainer else null,
             onClick = { onMicrophoneClicked.invoke() }
         )
 
         IconButton(
             icon = if (isCameraDisabled) "camera_disable" else "camera",
-            bg = if (isCameraDisabled) Color.Red else Color.Transparent,
+            bg = if (isCameraDisabled) MaterialTheme.colorScheme.errorContainer else null,
             onClick = { onCameraClicked.invoke() }
         )
 
         IconButton(
-            icon = if (status == StreamStatus.PAUSED) "play" else "pause",
-            bg = if (status == StreamStatus.PAUSED) MaterialTheme.colorScheme.secondary else Color.Transparent,
-            onClick = { onPlayPauseClicked.invoke() }
-        )
-
-        IconButton(
             icon = "rotate",
-            bg = Color.Transparent,
+            bg = Color.Black.copy(alpha = 0.7f),
             onClick = { onChangeCameraClicked.invoke() }
         )
 
@@ -76,32 +71,42 @@ fun BoxScope.BroadcastBottomOverlay(
         AppLoadingButton(
             fontSize = 11.ssp,
             loading = isEndingStream,
-            buttonColor = Color.Red,
-            labelColor = Color.White,
+            buttonColor = MaterialTheme.colorScheme.errorContainer,
+            labelColor = MaterialTheme.colorScheme.onErrorContainer,
+            enabled = status != StreamStatus.Setting,
             shape = RoundedCornerShape(15.sdp),
             label = stringResource(R.string.end_stream),
             onClick = { onEndClicked.invoke() },
             modifier = Modifier
-                .padding(start = 20.sdp)
+                .padding(start = 50.sdp)
                 .height(30.sdp)
         )
     }
 }
 
 @Composable
-private fun IconButton(icon: String, bg: Color = Color.Transparent, onClick: () -> Unit) {
+private fun IconButton(
+    icon: String,
+    bg: Color?,
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .background(bg, CircleShape)
+            .background(
+                if (!enabled) MaterialTheme.colorScheme.disabledContainer else (bg ?: Color.Black.copy(
+                    alpha = 0.7f
+                )), CircleShape
+            )
             .size(30.sdp)
             .clip(CircleShape)
-            .clickable { onClick.invoke() }
+            .clickable { if (enabled) onClick.invoke() }
     ) {
         SvgImage(
             asset = icon,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.size(20.sdp)
+            color = if (!enabled) MaterialTheme.colorScheme.disabledContent else Color.White,
+            modifier = Modifier.size(22.sdp)
         )
     }
 }
@@ -115,10 +120,9 @@ private fun PreviewBroadcastBottomOverlay() {
                 isMuted = false,
                 isCameraDisabled = false,
                 isEndingStream = false,
-                status = StreamStatus.PAUSED,
+                status = StreamStatus.Paused,
                 onMicrophoneClicked = { },
                 onCameraClicked = { },
-                onPlayPauseClicked = { },
                 onChangeCameraClicked = { },
                 onEndClicked = { }
             )

@@ -1,4 +1,4 @@
-package com.livestreaming.streamly.ui.setup.presentation.component
+package com.livestreaming.streamly.ui.broadcast.presentation.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -102,7 +102,7 @@ fun PermissionsRequiredContent(onAllow: () -> Unit) {
                 HeadingValue(
                     stringResource(R.string.microphone),
                     stringResource(R.string.microphone_msg),
-                    "microphone"
+                    "micro_phone"
                 )
 
                 Spacer(Modifier.height(20.sdp))

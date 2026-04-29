@@ -4,9 +4,12 @@ import com.livestreaming.streamly.core.model.Stream
 import com.livestreaming.streamly.core.model.StreamStatus
 import com.livestreaming.streamly.ui.broadcast.data.local.BroadcastLocalDataSource
 import com.livestreaming.streamly.ui.broadcast.data.remote.BroadcastRemoteDataSource
+import com.livestreaming.streamly.ui.broadcast.data.remote.dto.ChangeStreamStatusRequest
+import com.livestreaming.streamly.ui.broadcast.data.remote.dto.StartStreamRequest
 import com.livestreaming.streamly.ui.broadcast.domain.repository.BroadcastRepository
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
+import java.util.UUID
 import javax.inject.Inject
 
 class BroadcastRepositoryImpl @Inject constructor(
@@ -17,16 +20,24 @@ class BroadcastRepositoryImpl @Inject constructor(
         return remoteRepo.observeStream(streamId)
     }
 
-    override suspend fun goLive(stream: Stream): Result<Stream> = try {
-        val time = Calendar.getInstance().time
+    override suspend fun startStream(request: StartStreamRequest): Result<Stream> = try {
+        val date = Calendar.getInstance().time
+        val agoraChannelId: String = UUID.randomUUID().toString().take(12)
 
-        val updatedStream = stream.copy(
-            isLive = true,
-            startedAt = time.time,
-            status = StreamStatus.LIVE
+        val stream = Stream(
+            hostId = request.user.id.toString(),
+            hostName = request.user.name ?: "",
+            title = request.title,
+            viewerCount = 0,
+            createdAt = date.time,
+            startedAt = date.time,
+            agoraChannelId = agoraChannelId,
+            hostPhotoUrl = request.user.avatar ?: "",
+            description = request.desc ?: "",
+            status = StreamStatus.Setting.value
         )
 
-        remoteRepo.goLive(updatedStream)
+        val updatedStream = remoteRepo.startStream(stream)
         Result.success(updatedStream)
     } catch (ex: Exception) {
         Result.failure(ex)
@@ -34,7 +45,10 @@ class BroadcastRepositoryImpl @Inject constructor(
 
     override suspend fun endStream(stream: Stream): Result<Unit> = try {
         val time = Calendar.getInstance().time
-        val updatedStream = stream.copy(isLive = false, endedAt = time.time, status = StreamStatus.ENDED)
+        val updatedStream = stream.copy(
+            endedAt = time.time,
+            status = StreamStatus.Ended.value
+        )
         remoteRepo.endStream(updatedStream)
         Result.success(Unit)
     } catch (ex: Exception) {
@@ -42,27 +56,24 @@ class BroadcastRepositoryImpl @Inject constructor(
     }
 
     override suspend fun toggleMic(stream: Stream): Result<Stream> = try {
-        val updatedStream = stream.copy(isMuted = !stream.isMuted)
-        remoteRepo.toggleMic(stream)
+        val updatedStream = stream.copy(muted = !stream.muted)
+        remoteRepo.toggleMic(updatedStream)
         Result.success(updatedStream)
     } catch (ex: Exception) {
         Result.failure(ex)
     }
 
     override suspend fun toggleCamera(stream: Stream): Result<Stream> = try {
-        val updatedStream = stream.copy(isCameraOff = !stream.isCameraOff)
-        remoteRepo.toggleCamera(stream)
+        val updatedStream = stream.copy(cameraOff = !stream.cameraOff)
+        remoteRepo.toggleCamera(updatedStream)
         Result.success(updatedStream)
     } catch (ex: Exception) {
         Result.failure(ex)
     }
 
-    override suspend fun togglePlayPause(stream: Stream): Result<Stream> = try {
-        val updatedStream = stream.copy(
-            status = if (stream.status == StreamStatus.PAUSED) StreamStatus.LIVE else StreamStatus.PAUSED
-        )
-        remoteRepo.toggleStatus(stream)
-        Result.success(updatedStream)
+    override suspend fun changeStreamStatus(request: ChangeStreamStatusRequest): Result<Unit> = try {
+        remoteRepo.toggleStatus(request.streamId, request.status)
+        Result.success(Unit)
     } catch (ex: Exception) {
         Result.failure(ex)
     }

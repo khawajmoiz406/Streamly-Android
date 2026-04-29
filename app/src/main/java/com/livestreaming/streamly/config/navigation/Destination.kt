@@ -25,8 +25,6 @@ object Destination {
     @Serializable
     data object Home
     @Serializable
-    data object StreamSetup
-    @Serializable
     data object Profile
 
     //Main routes
@@ -37,5 +35,5 @@ object Destination {
     @Serializable
     data object StreamViewer
     @Serializable
-    data class StreamBroadcast(val streamId: String)
+    data object StreamBroadcast
 }

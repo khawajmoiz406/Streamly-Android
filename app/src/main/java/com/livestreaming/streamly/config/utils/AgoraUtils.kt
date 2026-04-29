@@ -85,6 +85,11 @@ class AgoraManager(private val context: Context) {
         engine?.muteLocalAudioStream(muted)
     }
 
+    fun muteLocalCamera(mute: Boolean) {
+        engine?.muteLocalVideoStream(!mute)
+        engine?.enableLocalVideo(!mute)
+    }
+
     fun stopPreview() {
         engine?.stopPreview()
     }

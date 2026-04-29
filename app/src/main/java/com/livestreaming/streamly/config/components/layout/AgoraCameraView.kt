@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +28,15 @@ fun AgoraCameraView(
     onError: ((message: String) -> Unit)? = null,
 ) {
     val localSurfaceView = remember { SurfaceView(context) }
+
+    LaunchedEffect(lifecycleOwner) {
+        agoraManager.apply {
+            this.onJoinSuccess = onJoinSuccess
+            this.onRemoteUserJoined = onRemoteUserJoined
+            this.onRemoteUserLeft = onRemoteUserLeft
+            this.onError = onError
+        }
+    }
 
     DisposableEffect(lifecycleOwner) {
         agoraManager.initialize()

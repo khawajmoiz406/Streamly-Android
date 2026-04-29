@@ -1,34 +1,36 @@
 package com.livestreaming.streamly.core.model
 
 import androidx.compose.runtime.Stable
-import kotlinx.serialization.Serializable
-import java.util.UUID
 
-@Serializable
 @Stable
 data class Stream(
-    val id: String,
-    val hostId: String,
-    val hostName: String,
-    val title: String,
-    val isLive: Boolean,
-    val viewerCount: Int,
-    val createdAt: Long,
-    val endedAt: Long? = null,
-    val startedAt: Long? = null,
-    val isMuted: Boolean = false,
-    val isCameraOff: Boolean = false,
-    val hostPhotoUrl: String? = null,
-    val description: String? = null,
-    val comments: List<Comment>?,
-    val viewers: List<Viewer>?,
-    val status: StreamStatus = StreamStatus.SETTING,
-    val agoraChannelId: String = UUID.randomUUID().toString().take(12),
-)
+    val id: String = "",
+    val hostId: String = "",
+    val hostName: String = "",
+    val hostPhotoUrl: String = "",
+    val agoraChannelId: String = "",
+    val title: String = "",
+    val description: String = "",
+    val muted: Boolean = false,
+    val cameraOff: Boolean = false,
+    val viewerCount: Int = 0,
+    val createdAt: Long = 0L,
+    val startedAt: Long = 0L,
+    val endedAt: Long = 0L,
+    val status: String = StreamStatus.Setting.value
+) {
+    fun getStreamStatus() = when (status) {
+        "setting" -> StreamStatus.Setting
+        "paused" -> StreamStatus.Paused
+        "live" -> StreamStatus.Live
+        "ended" -> StreamStatus.Ended
+        else -> StreamStatus.Setting
+    }
+}
 
-enum class StreamStatus {
-    SETTING,
-    PAUSED,
-    LIVE,
-    ENDED,
+sealed class StreamStatus(val value: String) {
+    data object Setting : StreamStatus("setting")
+    data object Paused : StreamStatus("paused")
+    data object Live : StreamStatus("live")
+    data object Ended : StreamStatus("ended")
 }

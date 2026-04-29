@@ -1,6 +1,5 @@
 package com.livestreaming.streamly.ui.auth.presentation.login.component
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth

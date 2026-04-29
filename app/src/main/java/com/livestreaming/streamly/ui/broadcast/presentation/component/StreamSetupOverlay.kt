@@ -1,4 +1,4 @@
-package com.livestreaming.streamly.ui.setup.presentation.component
+package com.livestreaming.streamly.ui.broadcast.presentation.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -26,14 +26,14 @@ import com.livestreaming.streamly.config.components.button.AppLoadingButton
 import com.livestreaming.streamly.config.components.input.AppTextField
 import com.livestreaming.streamly.config.components.state.FieldState
 import com.livestreaming.streamly.config.theme.MyApplicationTheme
-import com.livestreaming.streamly.ui.setup.presentation.SetupUiState
+import com.livestreaming.streamly.ui.broadcast.presentation.BroadcastUiState
 import ir.kaaveh.sdpcompose.sdp
 
 @Composable
 fun BoxScope.StreamSetupOverlay(
-    uiState: SetupUiState,
+    uiState: BroadcastUiState,
     onStartClicked: () -> Unit,
-    onFieldChange: (value: String, fieldUpdater: SetupUiState.(FieldState) -> SetupUiState) -> Unit
+    onFieldChange: (value: String, fieldUpdater: BroadcastUiState.(FieldState) -> BroadcastUiState) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -84,7 +84,7 @@ fun BoxScope.StreamSetupOverlay(
         Spacer(Modifier.height(15.sdp))
 
         AppLoadingButton(
-            loading = uiState.isLoading,
+            loading = uiState.isCreatingStream,
             onClick = { onStartClicked.invoke() },
             modifier = Modifier.height(35.sdp),
             label = stringResource(R.string.start_stream),
@@ -100,7 +100,7 @@ fun BoxScope.StreamSetupOverlay(
 private fun PreviewStreamSetupOverlay() {
     MyApplicationTheme {
         Box {
-            StreamSetupOverlay(SetupUiState(), {}) { _, _ -> }
+            StreamSetupOverlay(BroadcastUiState(), {}) { _, _ -> }
         }
     }
 }

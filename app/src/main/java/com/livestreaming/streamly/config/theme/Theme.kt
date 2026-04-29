@@ -58,10 +58,10 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 val ColorScheme.disabledContent: Color
-    get() = onSurface.copy(alpha = 0.38f)
+    get() = if (ThemeState.darkTheme.value) Color(0xFF616161) else Color(0xFF9E9E9E)
 
 val ColorScheme.disabledContainer: Color
-    get() = onSurface.copy(alpha = 0.12f)
+    get() = if (ThemeState.darkTheme.value) Color(0xFF2C2C2C) else Color(0xFFE0E0E0)
 
 @Composable
 fun MyApplicationTheme(
