@@ -1,5 +1,6 @@
 package com.livestreaming.streamly.config.components.button
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +34,7 @@ fun AppLoadingButton(
     fontSize: TextUnit? = null,
     leadingIcon: String? = null,
     trailingIcon: String? = null,
+    border: BorderStroke? = null,
     leadingIconColor: Color? = null,
     trailingIconColor: Color? = null,
     shape: Shape = RoundedCornerShape(8.sdp),
@@ -42,6 +44,7 @@ fun AppLoadingButton(
     Button(
         onClick = { if (!loading) onClick.invoke() },
         shape = shape,
+        border = border,
         enabled = enabled,
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues.Zero,

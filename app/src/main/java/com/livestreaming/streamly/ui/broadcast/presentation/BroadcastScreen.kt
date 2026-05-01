@@ -19,12 +19,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
+import com.livestream.streamly.R
 import com.livestreaming.streamly.config.components.layout.AgoraCameraView
+import com.livestreaming.streamly.config.components.layout.ConfirmationDialog
 import com.livestreaming.streamly.config.navigation.Destination
 import com.livestreaming.streamly.config.utils.AgoraManager
 import com.livestreaming.streamly.config.utils.AppCompositionLocals.LocalParentNavController
@@ -54,6 +58,7 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
     var firstTime = remember { true }
     val agoraManager = remember { AgoraManager(context) }
     var permanentlyDenied by remember { mutableStateOf(false) }
+    var showEndStreamDialog by remember { mutableStateOf(false) }
     var permissionsGranted by remember {
         mutableStateOf(PermissionUtils.areAllGranted(context, corePermissions))
     }
@@ -134,7 +139,7 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
                             isEndingStream = uiState.value.isEndingLiveStream,
                             isCameraDisabled = streamState.value?.cameraOff ?: false,
                             onChangeCameraClicked = { agoraManager.switchCamera() },
-                            onEndClicked = { viewModel.endStream() },
+                            onEndClicked = { showEndStreamDialog = true },
                             onCameraClicked = {
                                 agoraManager.muteLocalCamera(!(streamState.value?.cameraOff ?: true))
                                 viewModel.toggleCameraOnOff()
@@ -156,6 +161,22 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
                         PermissionUtils.requestPermissions(corePermissions, launcher)
                     }
                 }
+            }
+        }
+
+        if (showEndStreamDialog) {
+            Dialog(onDismissRequest = { }) {
+                ConfirmationDialog(
+                    title = stringResource(R.string.end_stream_title),
+                    description = stringResource(R.string.end_stream_msg),
+                    positiveButtonLabel = stringResource(R.string.end_stream),
+                    negativeButtonLabel = stringResource(R.string.keep_streaming),
+                    negativeClick = { showEndStreamDialog = false },
+                    positionClick = {
+                        showEndStreamDialog = false
+                        viewModel.endStream()
+                    },
+                )
             }
         }
     }
