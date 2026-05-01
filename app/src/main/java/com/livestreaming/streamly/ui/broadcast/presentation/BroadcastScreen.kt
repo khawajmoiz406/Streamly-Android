@@ -48,6 +48,7 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val uiState = viewModel.uiState.collectAsState()
     val streamState = viewModel.stream.collectAsState()
+    val comments = viewModel.comments.collectAsState()
     val navController = LocalParentNavController.current
 
     var firstTime = remember { true }
@@ -126,6 +127,8 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
                         )
 
                         BroadcastBottomOverlay(
+                            comments = comments.value,
+                            title = streamState.value?.title ?: "",
                             status = streamState.value?.getStreamStatus(),
                             isMuted = streamState.value?.muted ?: false,
                             isEndingStream = uiState.value.isEndingLiveStream,

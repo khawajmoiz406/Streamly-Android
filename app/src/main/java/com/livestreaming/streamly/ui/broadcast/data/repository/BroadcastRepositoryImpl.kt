@@ -1,5 +1,6 @@
 package com.livestreaming.streamly.ui.broadcast.data.repository
 
+import com.livestreaming.streamly.core.model.Comment
 import com.livestreaming.streamly.core.model.Stream
 import com.livestreaming.streamly.core.model.StreamStatus
 import com.livestreaming.streamly.ui.broadcast.data.local.BroadcastLocalDataSource
@@ -18,6 +19,10 @@ class BroadcastRepositoryImpl @Inject constructor(
 ) : BroadcastRepository {
     override fun observeStream(streamId: String): Flow<Stream?> {
         return remoteRepo.observeStream(streamId)
+    }
+
+    override fun observeStreamComments(streamId: String): Flow<List<Comment>?> {
+        return remoteRepo.observeStreamComments(streamId)
     }
 
     override suspend fun startStream(request: StartStreamRequest): Result<Stream> = try {

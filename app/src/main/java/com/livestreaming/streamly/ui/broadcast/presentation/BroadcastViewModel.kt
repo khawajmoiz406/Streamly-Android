@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.livestreaming.streamly.base.BaseViewModel
 import com.livestreaming.streamly.config.components.state.FieldState
 import com.livestreaming.streamly.config.utils.GenericValidators
+import com.livestreaming.streamly.core.model.Comment
 import com.livestreaming.streamly.core.model.Stream
 import com.livestreaming.streamly.core.model.StreamStatus
 import com.livestreaming.streamly.core.model.User
@@ -12,14 +13,21 @@ import com.livestreaming.streamly.ui.broadcast.data.remote.dto.ChangeStreamStatu
 import com.livestreaming.streamly.ui.broadcast.data.remote.dto.StartStreamRequest
 import com.livestreaming.streamly.ui.broadcast.domain.usecase.ChangeStreamStatusUseCase
 import com.livestreaming.streamly.ui.broadcast.domain.usecase.EndStreamUseCase
+import com.livestreaming.streamly.ui.broadcast.domain.usecase.ObserveStreamCommentsUseCase
 import com.livestreaming.streamly.ui.broadcast.domain.usecase.ObserveStreamUseCase
 import com.livestreaming.streamly.ui.broadcast.domain.usecase.StartStreamUseCase
 import com.livestreaming.streamly.ui.broadcast.domain.usecase.ToggleCameraUseCase
 import com.livestreaming.streamly.ui.broadcast.domain.usecase.ToggleMicUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,9 +40,21 @@ class BroadcastViewModel @Inject constructor(
     private val toggleCameraUseCase: ToggleCameraUseCase,
     private val observeStreamUseCase: ObserveStreamUseCase,
     private val changeStreamStatusUseCase: ChangeStreamStatusUseCase,
+    private val observeStreamCommentsUseCase: ObserveStreamCommentsUseCase,
 ) : BaseViewModel<BroadcastUiState, BroadcastEvents>(BroadcastUiState()) {
     private val _stream = MutableStateFlow<Stream?>(null)
     val stream: StateFlow<Stream?> = _stream.asStateFlow()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val comments: StateFlow<List<Comment>?> = _stream
+        .filter { !it?.id.isNullOrEmpty() }
+        .distinctUntilChanged { old, new -> old?.id == new?.id }
+        .flatMapLatest { observeStreamCommentsUseCase.invoke(it!!.id) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     fun startObservingStream(streamId: String) = viewModelScope.launch {
         observeStreamUseCase.invoke(streamId).collect { stream ->

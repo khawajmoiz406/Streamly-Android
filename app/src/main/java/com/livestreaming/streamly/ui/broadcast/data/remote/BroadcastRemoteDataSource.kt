@@ -2,9 +2,12 @@ package com.livestreaming.streamly.ui.broadcast.data.remote
 
 import android.content.Context
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.livestreaming.streamly.core.model.Comment
 import com.livestreaming.streamly.core.model.Stream
 import com.livestreaming.streamly.core.model.StreamStatus
 import com.livestreaming.streamly.core.remote.ApiException
+import com.livestreaming.streamly.core.remote.Collections.COMMENTS
 import com.livestreaming.streamly.core.remote.Collections.STREAMS
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
@@ -31,6 +34,31 @@ class BroadcastRemoteDataSource @Inject constructor(@param:ApplicationContext pr
                     return@addSnapshotListener
                 }
                 trySend(snapshot?.toObject(Stream::class.java))
+            }
+        awaitClose { listener.remove() }
+    }
+
+    fun observeStreamComments(streamId: String): Flow<List<Comment>> = callbackFlow {
+        if (streamId.isBlank()) {
+            close(IllegalArgumentException("streamId cannot be empty"))
+            return@callbackFlow
+        }
+
+        val listener = firestore
+            .collection(STREAMS)
+            .document(streamId)
+            .collection(COMMENTS)
+            .orderBy("sentAt", Query.Direction.ASCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                val comments = snapshot?.documents?.mapNotNull {
+                    it.toObject(Comment::class.java)
+                } ?: emptyList()
+
+                trySend(comments)
             }
         awaitClose { listener.remove() }
     }
