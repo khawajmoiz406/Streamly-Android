@@ -74,5 +74,8 @@
     <string name="paused">Paused</string>
     <string name="end_stream">End Stream</string>
     <string name="ended">Ended</string>
+    <string name="mic_muted">Mic muted</string>
+    <string name="camera_disabled">Your camera is off</string>
+    <string name="camera_disabled_msg">Viewers can\'t see you right now. Audio is still being shared. Tap the camera button to turn it back on.</string>
 
 </resources>

@@ -3,9 +3,11 @@ package com.livestreaming.streamly.ui.broadcast.presentation.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -31,67 +33,97 @@ import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
 @Composable
-fun BoxScope.BroadcastTopOverlay(status: StreamStatus?, viewers: Int) {
+fun BoxScope.BroadcastTopOverlay(status: StreamStatus?, viewers: Int, muted: Boolean) {
     val shape = RoundedCornerShape(20.sdp)
     val cardColors = Color.Black.copy(alpha = 0.7f)
 
-    Row(
-        Modifier
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
             .background(Color.Transparent)
             .windowInsetsPadding(WindowInsets.statusBars)
             .padding(10.sdp)
             .align(Alignment.TopCenter)
     ) {
-        status?.let {
-            val buttonInfo = getButtonInfoAccordingly(it, MaterialTheme.colorScheme)
+        Row {
+            status?.let {
+                val buttonInfo = getButtonInfoAccordingly(it, MaterialTheme.colorScheme)
+
+                Row(
+                    Modifier
+                        .background(buttonInfo["color"] as Color, shape)
+                        .padding(horizontal = 12.sdp, vertical = 3.sdp)
+                ) {
+                    Text(
+                        text = stringResource(buttonInfo["label"] as Int).uppercase(),
+                        fontSize = 10.ssp,
+                        fontWeight = FontWeight.Medium,
+                        color = buttonInfo["labelColor"] as Color
+                    )
+                }
+
+                Spacer(Modifier.width(10.sdp))
+            }
+
 
             Row(
-                Modifier
-                    .background(buttonInfo["color"] as Color, shape)
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .background(cardColors, shape)
                     .padding(horizontal = 12.sdp, vertical = 3.sdp)
             ) {
+                SvgImage(
+                    asset = "eye_open",
+                    color = Color.White,
+                    modifier = Modifier.size(12.sdp)
+                )
+
+                Spacer(Modifier.width(5.sdp))
+
                 Text(
-                    text = stringResource(buttonInfo["label"] as Int).uppercase(),
+                    text = viewers.toString(),
                     fontSize = 10.ssp,
                     fontWeight = FontWeight.Medium,
-                    color = buttonInfo["labelColor"] as Color
+                    color = Color.White,
                 )
             }
 
-            Spacer(Modifier.width(10.sdp))
-        }
+            Spacer(Modifier.weight(1f))
 
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .background(cardColors, shape)
-                .padding(horizontal = 12.sdp, vertical = 3.sdp)
-        ) {
-            SvgImage(
-                asset = "eye_open",
-                color = Color.White,
-                modifier = Modifier.size(12.sdp)
-            )
-
-            Spacer(Modifier.width(5.sdp))
-
-            Text(
-                text = viewers.toString(),
-                fontSize = 10.ssp,
-                fontWeight = FontWeight.Medium,
-                color = Color.White,
+            StreamTimer(
+                status = status,
+                modifier = Modifier
+                    .background(cardColors, shape)
+                    .padding(horizontal = 12.sdp, vertical = 3.sdp)
             )
         }
 
-        Spacer(Modifier.weight(1f))
+        if (muted) {
+            Spacer(Modifier.height(20.sdp))
 
-        StreamTimer(
-            status = status,
-            modifier = Modifier
-                .background(cardColors, shape)
-                .padding(horizontal = 12.sdp, vertical = 3.sdp)
-        )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.errorContainer, shape)
+                    .padding(horizontal = 12.sdp, vertical = 4.sdp)
+            ) {
+                SvgImage(
+                    asset = "micro_phone_disable",
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(15.sdp)
+                )
+
+                Spacer(Modifier.width(8.sdp))
+
+                Text(
+                    text = stringResource(R.string.mic_muted),
+                    fontSize = 11.ssp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
+        }
+
     }
 }
 
@@ -127,7 +159,7 @@ private fun getButtonInfoAccordingly(streamStatus: StreamStatus, colorScheme: Co
 private fun PreviewBroadcastTopOverlay() {
     MyApplicationTheme {
         Box {
-            BroadcastTopOverlay(StreamStatus.Live, 100)
+            BroadcastTopOverlay(StreamStatus.Live, 100, true)
         }
     }
 }

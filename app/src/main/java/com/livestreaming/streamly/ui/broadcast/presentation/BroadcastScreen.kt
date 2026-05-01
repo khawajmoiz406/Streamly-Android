@@ -35,6 +35,7 @@ import com.livestreaming.streamly.config.utils.SnackbarType
 import com.livestreaming.streamly.config.utils.SnackbarUtils
 import com.livestreaming.streamly.ui.broadcast.presentation.component.BroadcastBottomOverlay
 import com.livestreaming.streamly.ui.broadcast.presentation.component.BroadcastTopOverlay
+import com.livestreaming.streamly.ui.broadcast.presentation.component.CameraDisabledContent
 import com.livestreaming.streamly.ui.broadcast.presentation.component.PermissionsDeniedContent
 import com.livestreaming.streamly.ui.broadcast.presentation.component.PermissionsRequiredContent
 import com.livestreaming.streamly.ui.broadcast.presentation.component.StreamSetupOverlay
@@ -115,9 +116,13 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
                             }
                         )
                     } else {
+                        if (streamState.value?.cameraOff == true)
+                            CameraDisabledContent()
+
                         BroadcastTopOverlay(
                             status = streamState.value?.getStreamStatus(),
-                            viewers = streamState.value?.viewerCount ?: 0
+                            viewers = streamState.value?.viewerCount ?: 0,
+                            muted = streamState.value?.muted ?: false
                         )
 
                         BroadcastBottomOverlay(
