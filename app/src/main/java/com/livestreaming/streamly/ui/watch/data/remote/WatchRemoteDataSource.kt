@@ -137,10 +137,10 @@ class WatchRemoteDataSource @Inject constructor(@param:ApplicationContext privat
 
         val batch = firestore.batch()
         batch.update(streamRef, "viewerCount", stream.viewerCount)
-        batch.update(viewerRef, "viewer", "active", false)
+        batch.update(viewerRef, "active", false)
 
         batch.commit().await()
     } catch (e: Exception) {
-        throw ApiException.UnknownException(context, e.message ?: "Toggle mic failed")
+        throw ApiException.UnknownException(context, e.message ?: "Leave stream failed")
     }
 }

@@ -87,5 +87,11 @@
     <string name="stream_ended">Stream Has Ended</string>
     <string name="stream_ended_desc">Alex Chen has ended this live stream. Browse other live streams to keep watching!</string>
     <string name="browse_streams">Browse Streams</string>
+    <string name="live_now">Live Now</string>
+    <string name="streams">Streams</string>
+    <string name="watching">watching</string>
+    <string name="no_live_streams">No live streams</string>
+    <string name="no_live_streams_msg">Be the first to go live!</string>
+    <string name="go_live">Go Live</string>
 
 </resources>

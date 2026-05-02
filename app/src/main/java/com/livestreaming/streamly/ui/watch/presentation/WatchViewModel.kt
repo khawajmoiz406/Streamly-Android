@@ -92,11 +92,12 @@ class WatchViewModel @Inject constructor(
         stream.value?.let {
             val request = StreamUserRequest(it, user)
             val result = leaveStreamUseCase.invoke(request)
-            if (!result.isSuccess) {
+            if (result.isSuccess) {
+                events.emit(WatchEvents.OnLeaveSuccess())
+            } else {
                 val error = result.exceptionOrNull()
                 val errorStr = if (error is ApiException) error.error else error?.localizedMessage ?: ""
                 updateUiState(newUiState = uiState.value.copy(error = errorStr))
-                events.emit(WatchEvents.OnLeaveSuccess())
             }
         } ?: events.emit(WatchEvents.OnError("Stream cannot be null"))
     }

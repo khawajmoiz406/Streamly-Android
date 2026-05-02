@@ -48,7 +48,7 @@ fun BottomNav(navController: NavController) {
     val destination = navBackStackEntry?.destination
 
     Surface(
-        color = MaterialTheme.colorScheme.surfaceContainer,
+        color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(

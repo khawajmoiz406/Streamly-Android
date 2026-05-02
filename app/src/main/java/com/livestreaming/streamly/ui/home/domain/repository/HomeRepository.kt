@@ -1,5 +1,9 @@
 package com.livestreaming.streamly.ui.home.domain.repository
 
+import com.livestreaming.streamly.core.model.Stream
+import kotlinx.coroutines.flow.Flow
+
 interface HomeRepository {
-    suspend fun getHome(request: Unit): Result<Unit?>
+    fun observeLiveStreams(): Flow<List<Stream>?>
+    suspend fun getLiveStreams(request: Unit): Result<List<Stream>?>
 }

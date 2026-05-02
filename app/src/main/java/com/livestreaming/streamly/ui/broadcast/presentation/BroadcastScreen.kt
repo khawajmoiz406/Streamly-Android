@@ -29,7 +29,6 @@ import androidx.navigation.NavController
 import com.livestream.streamly.R
 import com.livestreaming.streamly.config.components.layout.AgoraCameraView
 import com.livestreaming.streamly.config.components.layout.ConfirmationDialog
-import com.livestreaming.streamly.config.navigation.Destination
 import com.livestreaming.streamly.config.utils.AgoraManager
 import com.livestreaming.streamly.config.utils.AppCompositionLocals.LocalParentNavController
 import com.livestreaming.streamly.config.utils.AppUtils
@@ -197,10 +196,7 @@ private suspend fun handleEvents(
 
             is BroadcastEvents.OnLiveStreamEndedInFB -> {
                 agoraManager.stopBroadcast()
-                navController.navigate(Destination.Dashboard) {
-                    popUpTo(Destination.StreamBroadcast) { inclusive = true }
-                    launchSingleTop = true
-                }
+                navController.popBackStack()
             }
 
             is BroadcastEvents.OnError -> {

@@ -21,7 +21,6 @@ import androidx.navigation.NavController
 import com.livestream.streamly.R
 import com.livestreaming.streamly.config.components.layout.AgoraCameraView
 import com.livestreaming.streamly.config.components.layout.ConfirmationDialog
-import com.livestreaming.streamly.config.navigation.Destination
 import com.livestreaming.streamly.config.utils.AgoraManager
 import com.livestreaming.streamly.config.utils.AppCompositionLocals.LocalParentNavController
 import com.livestreaming.streamly.config.utils.AppUtils
@@ -98,17 +97,10 @@ fun WatchScreen(streamId: String, viewModel: WatchViewModel = hiltViewModel()) {
                     title = stringResource(R.string.stream_ended),
                     description = stringResource(R.string.stream_ended_desc),
                     positiveButtonLabel = stringResource(R.string.browse_streams),
-                    positionClick = { goBack(navController) }
+                    positionClick = { navController?.popBackStack() }
                 )
             }
         }
-    }
-}
-
-private fun goBack(navController: NavController?) {
-    navController?.navigate(Destination.Dashboard) {
-        popUpTo(Destination.StreamViewer) { inclusive = true }
-        launchSingleTop = true
     }
 }
 
@@ -126,7 +118,7 @@ private suspend fun handleEvents(
 
             is WatchEvents.OnLeaveSuccess -> {
                 agoraManager.leaveAsViewer()
-                goBack(navController)
+                navController.popBackStack()
             }
 
             is WatchEvents.OnError -> {

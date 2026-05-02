@@ -1,7 +1,6 @@
 package com.livestreaming.streamly.ui.watch.presentation.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,21 +22,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.livestream.streamly.R
 import com.livestreaming.streamly.config.components.image.SvgImage
+import com.livestreaming.streamly.config.components.layout.UserImage
 import com.livestreaming.streamly.config.theme.MyApplicationTheme
 import com.livestreaming.streamly.config.theme.disabledContent
-import com.livestreaming.streamly.config.utils.extension.getInitials
 import com.livestreaming.streamly.core.model.StreamStatus
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
@@ -171,39 +165,7 @@ fun BoxScope.WatchTopOverlay(
 @Composable
 private fun HostInfo(title: String, hostName: String, hostPhoto: String?) {
     Row {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(28.sdp)
-                .background(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                    shape = CircleShape
-                )
-                .border(
-                    width = 0.5.dp,
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = CircleShape
-                )
-        ) {
-            if (hostPhoto == null) {
-                Text(
-                    text = hostName.getInitials(),
-                    fontSize = 11.ssp,
-                    lineHeight = 11.ssp,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            } else {
-                AsyncImage(
-                    model = hostPhoto,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape)
-                )
-            }
-        }
+        UserImage(userName = hostName, profilePicture = hostPhoto, size = 28.sdp)
 
         Spacer(Modifier.width(10.sdp))
 
