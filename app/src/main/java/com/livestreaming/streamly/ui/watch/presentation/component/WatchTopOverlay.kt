@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -47,34 +49,37 @@ fun BoxScope.WatchTopOverlay(
     muted: Boolean,
     onBackPressed: () -> Unit,
 ) {
+    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val shape = RoundedCornerShape(20.sdp)
     val cardColors = Color.Black.copy(alpha = 0.7f)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .windowInsetsPadding(WindowInsets.statusBars)
-            .align(Alignment.TopCenter)
+        modifier = Modifier.align(Alignment.TopCenter)
     ) {
         Column(
             modifier = Modifier
                 .background(
                     Brush.verticalGradient(
                         colorStops = arrayOf(
-                            0.0f to Color.Black.copy(alpha = 0.8f),
-                            0.7f to Color.Black.copy(alpha = 0.4f),
+                            0.0f to Color.Black.copy(alpha = 0.7f),
+                            0.6f to Color.Black.copy(alpha = 0.3f),
+                            0.8f to Color.Black.copy(alpha = 0.1f),
                             1.0f to Color.Transparent,
                         )
                     )
                 )
                 .padding(10.sdp)
         ) {
+            Spacer(Modifier.height(statusBarHeight))
+
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(28.sdp)
                         .background(cardColors, CircleShape)
+                        .clip(CircleShape)
                         .clickable { onBackPressed.invoke() }
                 ) {
                     SvgImage(

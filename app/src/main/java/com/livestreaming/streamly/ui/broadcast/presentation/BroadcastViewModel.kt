@@ -20,6 +20,7 @@ import com.livestreaming.streamly.ui.broadcast.domain.usecase.ToggleCameraUseCas
 import com.livestreaming.streamly.ui.broadcast.domain.usecase.ToggleMicUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -123,13 +124,12 @@ class BroadcastViewModel @Inject constructor(
         } ?: events.emit(BroadcastEvents.OnError("Stream cannot be null"))
     }
 
-    fun endStream() = viewModelScope.launch {
+    fun endStream() = viewModelScope.launch(NonCancellable) {
         stream.value?.let {
             updateUiState(newUiState = uiState.value.copy(isEndingLiveStream = true))
             val result = endStreamUseCase.invoke(it)
             if (result.isSuccess) {
                 updateUiState(newUiState = uiState.value.copy(isEndingLiveStream = false))
-                events.emit(BroadcastEvents.OnLiveStreamEndedInFB())
             } else {
                 val error = result.exceptionOrNull()
                 val errorStr = if (error is ApiException) error.error else error?.localizedMessage ?: ""

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
@@ -17,7 +18,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.navigation.NavController
 import com.livestream.streamly.R
 import com.livestreaming.streamly.config.components.layout.AgoraCameraView
 import com.livestreaming.streamly.config.components.layout.ConfirmationDialog
@@ -46,7 +46,16 @@ fun WatchScreen(streamId: String, viewModel: WatchViewModel = hiltViewModel()) {
 
     LaunchedEffect(lifecycleOwner) {
         viewModel.getStream(streamId)
-        navController?.let { handleEvents(it, viewModel, agoraManager) }
+        handleEvents(viewModel, agoraManager)
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        onDispose {
+            if (streamState.value?.getStreamStatus() != StreamStatus.Ended) {
+                agoraManager.leaveAsViewer()
+                viewModel.leaveStream(currentUser)
+            }
+        }
     }
 
     Scaffold { padding ->
@@ -75,13 +84,12 @@ fun WatchScreen(streamId: String, viewModel: WatchViewModel = hiltViewModel()) {
                     hostName = streamState.value?.hostName ?: "",
                     status = streamState.value?.getStreamStatus(),
                     viewers = streamState.value?.viewerCount ?: 0,
-                    onBackPressed = { viewModel.leaveStream(currentUser) }
+                    onBackPressed = { navController?.popBackStack() }
                 )
 
                 WatchBottomOverlay(
                     uiState = uiState.value,
                     comments = comments.value,
-                    onShareClicked = {},
                     onSendClicked = { viewModel.addCommentToStream(currentUser) },
                     onFieldChange = { str, fieldUpdater ->
                         viewModel.onFieldChange(value = str, fieldUpdater = fieldUpdater)
@@ -104,21 +112,12 @@ fun WatchScreen(streamId: String, viewModel: WatchViewModel = hiltViewModel()) {
     }
 }
 
-private suspend fun handleEvents(
-    navController: NavController,
-    viewModel: WatchViewModel,
-    agoraManager: AgoraManager,
-) {
+private suspend fun handleEvents(viewModel: WatchViewModel, agoraManager: AgoraManager) {
     viewModel.events.collect { event ->
         when (event) {
             is WatchEvents.OnStreamFoundFromFB -> event.stream?.let {
                 viewModel.startObservingStream(it.id)
                 agoraManager.joinAsViewer(it.agoraChannelId)
-            }
-
-            is WatchEvents.OnLeaveSuccess -> {
-                agoraManager.leaveAsViewer()
-                navController.popBackStack()
             }
 
             is WatchEvents.OnError -> {

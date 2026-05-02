@@ -4,6 +4,5 @@ import com.livestreaming.streamly.core.model.Stream
 
 sealed class BroadcastEvents {
     class OnStreamCreated(val stream: Stream?) : BroadcastEvents()
-    class OnLiveStreamEndedInFB() : BroadcastEvents()
     class OnError(val error: String) : BroadcastEvents()
 }

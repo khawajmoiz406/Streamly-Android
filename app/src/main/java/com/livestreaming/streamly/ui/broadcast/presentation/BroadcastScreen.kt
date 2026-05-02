@@ -25,7 +25,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.navigation.NavController
 import com.livestream.streamly.R
 import com.livestreaming.streamly.config.components.layout.AgoraCameraView
 import com.livestreaming.streamly.config.components.layout.ConfirmationDialog
@@ -76,7 +75,7 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
     )
 
     LaunchedEffect(lifecycleOwner) {
-        navController?.let { handleEvents(it, viewModel, agoraManager) }
+        handleEvents(viewModel, agoraManager)
     }
 
     DisposableEffect(lifecycleOwner) {
@@ -92,7 +91,11 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+        onDispose {
+            viewModel.endStream()
+            agoraManager.stopBroadcast()
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
 
@@ -141,11 +144,13 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
                             onChangeCameraClicked = { agoraManager.switchCamera() },
                             onEndClicked = { showEndStreamDialog = true },
                             onCameraClicked = {
-                                agoraManager.muteLocalCamera(!(streamState.value?.cameraOff ?: true))
+                                val newValue = !(streamState.value?.cameraOff ?: true)
+                                agoraManager.muteLocalCamera(newValue)
                                 viewModel.toggleCameraOnOff()
                             },
                             onMicrophoneClicked = {
-                                agoraManager.toggleMic(streamState.value?.muted ?: false)
+                                val newValue = !(streamState.value?.muted ?: true)
+                                agoraManager.toggleMic(newValue)
                                 viewModel.toggleMicrophone()
                             }
                         )
@@ -174,7 +179,7 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
                     negativeClick = { showEndStreamDialog = false },
                     positionClick = {
                         showEndStreamDialog = false
-                        viewModel.endStream()
+                        navController?.popBackStack()
                     },
                 )
             }
@@ -182,21 +187,12 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
     }
 }
 
-private suspend fun handleEvents(
-    navController: NavController,
-    viewModel: BroadcastViewModel,
-    agoraManager: AgoraManager,
-) {
+private suspend fun handleEvents(viewModel: BroadcastViewModel, agoraManager: AgoraManager) {
     viewModel.events.collect { event ->
         when (event) {
             is BroadcastEvents.OnStreamCreated -> event.stream?.let {
                 viewModel.startObservingStream(it.id)
                 agoraManager.goLiveOnChannel(it.agoraChannelId)
-            }
-
-            is BroadcastEvents.OnLiveStreamEndedInFB -> {
-                agoraManager.stopBroadcast()
-                navController.popBackStack()
             }
 
             is BroadcastEvents.OnError -> {

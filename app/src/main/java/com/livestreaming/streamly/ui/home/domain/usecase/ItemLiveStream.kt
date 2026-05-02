@@ -43,9 +43,9 @@ fun ItemLiveStream(stream: Stream, onClick: () -> Unit) {
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface, rounded)
             .border(1.sdp, MaterialTheme.colorScheme.disabledContainer, rounded)
-            .padding(10.sdp)
             .clip(rounded)
             .clickable { onClick.invoke() }
+            .padding(10.sdp)
     ) {
         UserImage(userName = stream.hostName, profilePicture = stream.hostPhotoUrl, size = 40.sdp)
 

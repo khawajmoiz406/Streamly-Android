@@ -11,7 +11,6 @@ import io.agora.rtc2.video.VideoCanvas
 
 class AgoraManager(private val context: Context) {
     private var engine: RtcEngine? = null
-    var uid: Int = 0
     var onJoinSuccess: ((Int) -> Unit)? = null
     var onRemoteUserJoined: ((uid: Int) -> Unit)? = null
     var onRemoteUserLeft: (() -> Unit)? = null
@@ -40,7 +39,7 @@ class AgoraManager(private val context: Context) {
         }
     }
 
-    fun setupRemoteVideo(remoteView: SurfaceView) {
+    fun setupRemoteVideo(uid: Int, remoteView: SurfaceView) {
         engine?.setupRemoteVideo(
             VideoCanvas(remoteView, VideoCanvas.RENDER_MODE_HIDDEN, uid)
         )
@@ -86,9 +85,8 @@ class AgoraManager(private val context: Context) {
         engine?.muteLocalAudioStream(muted)
     }
 
-    fun muteLocalCamera(mute: Boolean) {
-        engine?.muteLocalVideoStream(!mute)
-        engine?.enableLocalVideo(!mute)
+    fun muteLocalCamera(disabled: Boolean) {
+        engine?.muteLocalVideoStream(disabled)
     }
 
     fun stopPreview() {
@@ -110,7 +108,6 @@ class AgoraManager(private val context: Context) {
     private fun buildEventHandler() = object : IRtcEngineEventHandler() {
 
         override fun onJoinChannelSuccess(channel: String, uid: Int, elapsed: Int) {
-            this@AgoraManager.uid = uid
             onJoinSuccess?.invoke(uid)
         }
 

@@ -18,6 +18,7 @@ import com.livestreaming.streamly.ui.watch.domain.usecase.LeaveStreamUseCase
 import com.livestreaming.streamly.ui.watch.domain.usecase.UserJoinedStreamUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -88,13 +89,11 @@ class WatchViewModel @Inject constructor(
         } ?: events.emit(WatchEvents.OnError("Stream cannot be null"))
     }
 
-    fun leaveStream(user: User) = viewModelScope.launch {
+    fun leaveStream(user: User) = viewModelScope.launch(NonCancellable) {
         stream.value?.let {
             val request = StreamUserRequest(it, user)
             val result = leaveStreamUseCase.invoke(request)
-            if (result.isSuccess) {
-                events.emit(WatchEvents.OnLeaveSuccess())
-            } else {
+            if (!result.isSuccess) {
                 val error = result.exceptionOrNull()
                 val errorStr = if (error is ApiException) error.error else error?.localizedMessage ?: ""
                 updateUiState(newUiState = uiState.value.copy(error = errorStr))
@@ -113,7 +112,7 @@ class WatchViewModel @Inject constructor(
         updateUiState(newUiState = uiState.value.copy(isAddingComment = true))
         val result = addCommentToStreamUseCase.invoke(request)
         if (result.isSuccess) {
-            updateUiState(newUiState = uiState.value.copy(isAddingComment = false))
+            updateUiState(newUiState = uiState.value.copy(isAddingComment = false, comment = FieldState()))
         } else {
             val error = result.exceptionOrNull()
             val errorStr = if (error is ApiException) error.error else error?.localizedMessage ?: ""

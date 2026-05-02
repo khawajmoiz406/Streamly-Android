@@ -1,7 +1,6 @@
 package com.livestreaming.streamly.ui.watch.presentation.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -19,7 +17,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -30,7 +27,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.livestream.streamly.R
 import com.livestreaming.streamly.config.components.button.AppLoadingButton
-import com.livestreaming.streamly.config.components.image.SvgImage
 import com.livestreaming.streamly.config.components.input.AppTextField
 import com.livestreaming.streamly.config.components.layout.StreamComments
 import com.livestreaming.streamly.config.components.state.FieldState
@@ -44,7 +40,6 @@ fun BoxScope.WatchBottomOverlay(
     uiState: WatchUiState,
     comments: List<Comment>?,
     onSendClicked: () -> Unit,
-    onShareClicked: () -> Unit,
     onFieldChange: (value: String, fieldUpdater: WatchUiState.(FieldState) -> WatchUiState) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
@@ -86,13 +81,13 @@ fun BoxScope.WatchBottomOverlay(
                 placeholder = stringResource(R.string.say_something),
                 containerColor = MaterialTheme.colorScheme.surface,
                 borderColor = MaterialTheme.colorScheme.outline,
-                onImeActionPerformed = { focusManager.moveFocus(FocusDirection.Next) },
+                onImeActionPerformed = { focusManager.clearFocus() },
                 error = uiState.comment.error?.let { stringResource(it) },
             )
 
             AppLoadingButton(
                 showTitle = false,
-                iconSize = 25.sdp,
+                iconSize = 18.sdp,
                 trailingIcon = "send",
                 onClick = onSendClicked,
                 buttonColor = Color.Transparent,
@@ -100,21 +95,6 @@ fun BoxScope.WatchBottomOverlay(
                 shape = RoundedCornerShape(20.sdp),
                 modifier = Modifier.size(35.sdp)
             )
-
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .background(Color.Transparent, CircleShape)
-                    .size(35.sdp)
-                    .clip(CircleShape)
-                    .clickable { onShareClicked.invoke() }
-            ) {
-                SvgImage(
-                    asset = "share",
-                    color = Color.White,
-                    modifier = Modifier.size(25.sdp)
-                )
-            }
         }
     }
 }
@@ -147,7 +127,6 @@ private fun PreviewWatchBottomOverlay() {
                     ),
                 ),
                 onSendClicked = { },
-                onShareClicked = {},
                 onFieldChange = { _, _ -> }
             )
         }

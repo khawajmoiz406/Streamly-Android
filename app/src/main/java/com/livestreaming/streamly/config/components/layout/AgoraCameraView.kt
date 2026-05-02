@@ -36,7 +36,7 @@ fun AgoraCameraView(
             this.onRemoteUserLeft = onRemoteUserLeft
             this.onError = onError
             this.onRemoteUserJoined = { remoteUid ->
-                if (remoteUid == agoraManager.uid) agoraManager.setupRemoteVideo(localSurfaceView)
+                agoraManager.setupRemoteVideo(uid = remoteUid, remoteView = localSurfaceView)
                 onRemoteUserJoined?.invoke(remoteUid)
             }
         }

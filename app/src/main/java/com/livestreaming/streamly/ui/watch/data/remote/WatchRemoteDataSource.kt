@@ -138,6 +138,7 @@ class WatchRemoteDataSource @Inject constructor(@param:ApplicationContext privat
         val batch = firestore.batch()
         batch.update(streamRef, "viewerCount", stream.viewerCount)
         batch.update(viewerRef, "active", false)
+        batch.update(viewerRef, "lastActiveAt", Calendar.getInstance().timeInMillis)
 
         batch.commit().await()
     } catch (e: Exception) {

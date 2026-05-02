@@ -1,5 +1,6 @@
 package com.livestreaming.streamly.config.components.layout
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,52 +17,57 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalWindowInfo
 import com.livestreaming.streamly.core.model.Comment
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
+@SuppressLint("FrequentlyChangingValue")
 @Composable
-fun StreamComments(comments: List<Comment>, maxComments: Int = 3) {
-    var itemHeightPx by remember { mutableIntStateOf(0) }
-    val itemHeightDp = with(LocalDensity.current) { itemHeightPx.toDp() }
+fun StreamComments(comments: List<Comment>) {
     val listState = rememberLazyListState()
+    val halfScreenHeight = LocalWindowInfo.current.containerDpSize.height * 0.3f
 
     LaunchedEffect(comments.size) {
-        if (comments.isNotEmpty()) {
-            listState.animateScrollToItem(comments.lastIndex)
-        }
+        if (comments.isNotEmpty()) listState.scrollToItem(0)
     }
 
     LazyColumn(
+        state = listState,
+        reverseLayout = true,
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(max = if (itemHeightDp > 0.dp) itemHeightDp * maxComments else Dp.Unspecified)
+            .heightIn(max = halfScreenHeight)
+            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+            .drawWithContent {
+                drawContent()
+                drawRect(
+                    blendMode = BlendMode.DstIn,
+                    brush = Brush.verticalGradient(
+                        0f to Color.Transparent,
+                        0.3f to Color.Black.copy(alpha = 0.5f),
+                        0.6f to Color.Black
+                    ),
+                )
+            }
     ) {
-        itemsIndexed(comments) { index, comment ->
-            ItemComment(
-                comment = comment,
-                modifier = Modifier.onSizeChanged { size ->
-                    if (index == 0) itemHeightPx = size.height
-                }
-            )
+        itemsIndexed(comments.reversed()) { _, comment ->
+            ItemComment(comment = comment)
         }
     }
 }
 
 @Composable
-fun ItemComment(comment: Comment, modifier: Modifier) {
-    Column(modifier) {
+fun ItemComment(comment: Comment, modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
         Row {
             UserImage(comment.userName, profilePicture = comment.userAvatar)
 
