@@ -80,5 +80,12 @@
     <string name="end_stream_msg">Are you sure you want to end your live stream? All viewers will be disconnected.</string>
     <string name="end_stream_title">End Stream?</string>
     <string name="keep_streaming">Keep Streaming</string>
+    <string name="host_camera_disabled">Host camera is off</string>
+    <string name="host_camera_disabled_msg">The host has turned off both their camera. Hang tight or chat below.</string>
+    <string name="host_mic_muted">Host muted</string>
+    <string name="say_something">Say something...</string>
+    <string name="stream_ended">Stream Has Ended</string>
+    <string name="stream_ended_desc">Alex Chen has ended this live stream. Browse other live streams to keep watching!</string>
+    <string name="browse_streams">Browse Streams</string>
 
 </resources>

@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.livestreaming.streamly.config.components.image.SvgImage
@@ -27,10 +28,12 @@ import ir.kaaveh.sdpcompose.ssp
 @Composable
 fun AppLoadingButton(
     modifier: Modifier,
-    label: String,
     loading: Boolean,
     onClick: () -> Unit,
+    iconSize: Dp? = null,
+    label: String? = null,
     enabled: Boolean = true,
+    showTitle: Boolean = true,
     fontSize: TextUnit? = null,
     leadingIcon: String? = null,
     trailingIcon: String? = null,
@@ -59,25 +62,25 @@ fun AppLoadingButton(
                     SvgImage(
                         asset = it,
                         color = if (!enabled) MaterialTheme.colorScheme.disabledContent else leadingIconColor,
-                        modifier = Modifier.size(15.sdp)
+                        modifier = Modifier.size(iconSize ?: 15.sdp)
                     )
 
-                    Spacer(Modifier.width(10.sdp))
+                    if (showTitle && label != null) Spacer(Modifier.width(10.sdp))
                 }
 
-                Text(
+                if (showTitle && label != null) Text(
                     text = label,
                     fontSize = fontSize ?: 13.ssp,
                     color = if (!enabled) MaterialTheme.colorScheme.disabledContent else labelColor,
                 )
 
                 trailingIcon?.let {
-                    Spacer(Modifier.width(10.sdp))
+                    if (showTitle && label != null) Spacer(Modifier.width(10.sdp))
 
                     SvgImage(
                         asset = it,
                         color = if (!enabled) MaterialTheme.colorScheme.disabledContent else trailingIconColor,
-                        modifier = Modifier.size(15.sdp)
+                        modifier = Modifier.size(iconSize ?: 15.sdp)
                     )
                 }
             }

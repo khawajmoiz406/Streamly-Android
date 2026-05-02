@@ -1,4 +1,4 @@
-package com.livestreaming.streamly.ui.broadcast.presentation.component
+package com.livestreaming.streamly.ui.watch.presentation.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -56,7 +56,7 @@ fun CameraDisabledContent() {
         Spacer(Modifier.height(10.sdp))
 
         Text(
-            text = stringResource(R.string.camera_disabled),
+            text = stringResource(R.string.host_camera_disabled),
             fontSize = 13.ssp,
             color = Color.White,
             fontWeight = FontWeight.SemiBold,
@@ -65,7 +65,7 @@ fun CameraDisabledContent() {
         Spacer(Modifier.height(5.sdp))
 
         Text(
-            text = stringResource(R.string.camera_disabled_msg),
+            text = stringResource(R.string.host_camera_disabled_msg),
             fontSize = 11.ssp,
             lineHeight = 11.ssp,
             textAlign = TextAlign.Center,

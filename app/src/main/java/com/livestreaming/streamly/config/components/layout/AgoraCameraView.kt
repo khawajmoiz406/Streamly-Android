@@ -20,9 +20,10 @@ import com.livestreaming.streamly.config.utils.AgoraManager
 @Composable
 fun AgoraCameraView(
     context: Context,
+    isBroadcaster: Boolean,
     lifecycleOwner: LifecycleOwner,
     agoraManager: AgoraManager,
-    onJoinSuccess: (() -> Unit)? = null,
+    onJoinSuccess: ((uid: Int) -> Unit)? = null,
     onRemoteUserJoined: ((uid: Int) -> Unit)? = null,
     onRemoteUserLeft: (() -> Unit)? = null,
     onError: ((message: String) -> Unit)? = null,
@@ -32,27 +33,36 @@ fun AgoraCameraView(
     LaunchedEffect(lifecycleOwner) {
         agoraManager.apply {
             this.onJoinSuccess = onJoinSuccess
-            this.onRemoteUserJoined = onRemoteUserJoined
             this.onRemoteUserLeft = onRemoteUserLeft
             this.onError = onError
+            this.onRemoteUserJoined = { remoteUid ->
+                if (remoteUid == agoraManager.uid) agoraManager.setupRemoteVideo(localSurfaceView)
+                onRemoteUserJoined?.invoke(remoteUid)
+            }
         }
     }
 
-    DisposableEffect(lifecycleOwner) {
-        agoraManager.initialize()
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> agoraManager.startPreview(localSurfaceView)
-                Lifecycle.Event.ON_PAUSE -> agoraManager.stopPreview()
-                else -> {}
+    if (isBroadcaster) {
+        DisposableEffect(lifecycleOwner) {
+            agoraManager.initialize()
+            val observer = LifecycleEventObserver { _, event ->
+                when (event) {
+                    Lifecycle.Event.ON_RESUME -> agoraManager.startPreview(localSurfaceView)
+                    Lifecycle.Event.ON_PAUSE -> agoraManager.stopPreview()
+                    else -> {}
+                }
+            }
+
+            lifecycleOwner.lifecycle.addObserver(observer)
+            onDispose {
+                lifecycleOwner.lifecycle.removeObserver(observer)
+                agoraManager.destroy()
             }
         }
-
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-            agoraManager.stopPreview()
-            agoraManager.destroy()
+    } else {
+        DisposableEffect(lifecycleOwner) {
+            agoraManager.initialize()
+            onDispose { agoraManager.destroy() }
         }
     }
 

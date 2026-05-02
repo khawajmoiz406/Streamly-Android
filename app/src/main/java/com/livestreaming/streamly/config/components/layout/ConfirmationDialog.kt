@@ -37,9 +37,9 @@ fun ConfirmationDialog(
     title: String,
     description: String,
     positiveButtonLabel: String,
-    negativeButtonLabel: String,
     positionClick: () -> Unit,
-    negativeClick: () -> Unit
+    negativeButtonLabel: String? = null,
+    negativeClick: (() -> Unit)? = null
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -85,21 +85,23 @@ fun ConfirmationDialog(
         Spacer(Modifier.height(15.sdp))
 
         Row {
-            AppLoadingButton(
-                loading = false,
-                fontSize = 12.ssp,
-                onClick = negativeClick,
-                label = negativeButtonLabel,
-                buttonColor = Color.Transparent,
-                labelColor = MaterialTheme.colorScheme.onSurface,
-                shape = RoundedCornerShape(5.sdp),
-                border = BorderStroke(1.sdp, MaterialTheme.colorScheme.disabledContainer),
-                modifier = Modifier
-                    .height(32.sdp)
-                    .weight(1f),
-            )
+            if (negativeButtonLabel != null && negativeClick != null) {
+                AppLoadingButton(
+                    loading = false,
+                    fontSize = 12.ssp,
+                    onClick = negativeClick,
+                    label = negativeButtonLabel,
+                    buttonColor = Color.Transparent,
+                    labelColor = MaterialTheme.colorScheme.onSurface,
+                    shape = RoundedCornerShape(5.sdp),
+                    border = BorderStroke(1.sdp, MaterialTheme.colorScheme.disabledContainer),
+                    modifier = Modifier
+                        .height(32.sdp)
+                        .weight(1f),
+                )
 
-            Spacer(Modifier.width(10.sdp))
+                Spacer(Modifier.width(10.sdp))
+            }
 
             AppLoadingButton(
                 loading = false,
@@ -125,8 +127,8 @@ private fun PreviewConfirmationDialog() {
             "Alert",
             "Are you sure you want to perform this action?",
             "OK",
-            "Cancel",
             {},
+            "Cancel",
             {}
         )
     }

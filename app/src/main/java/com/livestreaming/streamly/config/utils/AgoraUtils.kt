@@ -11,7 +11,8 @@ import io.agora.rtc2.video.VideoCanvas
 
 class AgoraManager(private val context: Context) {
     private var engine: RtcEngine? = null
-    var onJoinSuccess: (() -> Unit)? = null
+    var uid: Int = 0
+    var onJoinSuccess: ((Int) -> Unit)? = null
     var onRemoteUserJoined: ((uid: Int) -> Unit)? = null
     var onRemoteUserLeft: (() -> Unit)? = null
     var onError: ((message: String) -> Unit)? = null
@@ -39,7 +40,7 @@ class AgoraManager(private val context: Context) {
         }
     }
 
-    fun setupRemoteVideo(uid: Int, remoteView: SurfaceView) {
+    fun setupRemoteVideo(remoteView: SurfaceView) {
         engine?.setupRemoteVideo(
             VideoCanvas(remoteView, VideoCanvas.RENDER_MODE_HIDDEN, uid)
         )
@@ -102,7 +103,6 @@ class AgoraManager(private val context: Context) {
     }
 
     fun destroy() {
-        engine?.leaveChannel()
         RtcEngine.destroy()
         engine = null
     }
@@ -110,7 +110,8 @@ class AgoraManager(private val context: Context) {
     private fun buildEventHandler() = object : IRtcEngineEventHandler() {
 
         override fun onJoinChannelSuccess(channel: String, uid: Int, elapsed: Int) {
-            onJoinSuccess?.invoke()
+            this@AgoraManager.uid = uid
+            onJoinSuccess?.invoke(uid)
         }
 
         override fun onUserJoined(uid: Int, elapsed: Int) {
@@ -123,6 +124,10 @@ class AgoraManager(private val context: Context) {
 
         override fun onError(err: Int) {
             onError?.invoke("Agora error code: $err")
+        }
+
+        override fun onTokenPrivilegeWillExpire(token: String?) {
+            engine?.renewToken(token)
         }
     }
 }

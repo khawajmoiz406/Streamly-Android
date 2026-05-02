@@ -107,6 +107,7 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
                 permissionsGranted -> {
                     AgoraCameraView(
                         context = context,
+                        isBroadcaster = true,
                         lifecycleOwner = lifecycleOwner,
                         agoraManager = agoraManager,
                         onJoinSuccess = { viewModel.goLive() },
@@ -195,6 +196,7 @@ private suspend fun handleEvents(
             }
 
             is BroadcastEvents.OnLiveStreamEndedInFB -> {
+                agoraManager.stopBroadcast()
                 navController.navigate(Destination.Dashboard) {
                     popUpTo(Destination.StreamBroadcast) { inclusive = true }
                     launchSingleTop = true
