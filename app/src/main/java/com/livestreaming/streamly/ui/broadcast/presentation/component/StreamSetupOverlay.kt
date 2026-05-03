@@ -6,8 +6,11 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -35,6 +38,7 @@ fun BoxScope.StreamSetupOverlay(
     onStartClicked: () -> Unit,
     onFieldChange: (value: String, fieldUpdater: BroadcastUiState.(FieldState) -> BroadcastUiState) -> Unit
 ) {
+    val navigationBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val focusManager = LocalFocusManager.current
 
     DisposableEffect(Unit) {
@@ -90,7 +94,7 @@ fun BoxScope.StreamSetupOverlay(
             label = stringResource(R.string.start_stream),
         )
 
-        Spacer(Modifier.height(5.sdp))
+        Spacer(Modifier.height(navigationBarHeight))
     }
 }
 

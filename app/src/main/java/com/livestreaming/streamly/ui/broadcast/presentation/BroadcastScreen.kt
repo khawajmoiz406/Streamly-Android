@@ -42,7 +42,7 @@ import com.livestreaming.streamly.ui.broadcast.presentation.component.Permission
 import com.livestreaming.streamly.ui.broadcast.presentation.component.PermissionsRequiredContent
 import com.livestreaming.streamly.ui.broadcast.presentation.component.StreamSetupOverlay
 
-@SuppressLint("LocalContextGetResourceValueCall")
+@SuppressLint("LocalContextGetResourceValueCall", "UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
@@ -99,12 +99,8 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
     }
 
 
-    Scaffold { padding ->
-        Box(
-            modifier = Modifier
-                .padding(bottom = padding.calculateBottomPadding())
-                .fillMaxWidth()
-        ) {
+    Scaffold { _ ->
+        Box(modifier = Modifier.fillMaxWidth()) {
             when {
                 permissionsGranted -> {
                     AgoraCameraView(

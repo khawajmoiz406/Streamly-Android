@@ -85,7 +85,7 @@
     <string name="host_mic_muted">Host muted</string>
     <string name="say_something">Say something...</string>
     <string name="stream_ended">Stream Has Ended</string>
-    <string name="stream_ended_desc">Alex Chen has ended this live stream. Browse other live streams to keep watching!</string>
+    <string name="stream_ended_desc">has ended this live stream. Browse other live streams to keep watching!</string>
     <string name="browse_streams">Browse Streams</string>
     <string name="live_now">Live Now</string>
     <string name="streams">Streams</string>

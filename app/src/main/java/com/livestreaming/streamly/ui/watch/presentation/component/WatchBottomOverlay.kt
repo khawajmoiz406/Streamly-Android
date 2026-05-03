@@ -7,7 +7,10 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,7 +20,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -42,6 +44,7 @@ fun BoxScope.WatchBottomOverlay(
     onSendClicked: () -> Unit,
     onFieldChange: (value: String, fieldUpdater: WatchUiState.(FieldState) -> WatchUiState) -> Unit
 ) {
+    val navigationBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val focusManager = LocalFocusManager.current
 
     DisposableEffect(Unit) {
@@ -89,13 +92,19 @@ fun BoxScope.WatchBottomOverlay(
                 showTitle = false,
                 iconSize = 18.sdp,
                 trailingIcon = "send",
-                onClick = onSendClicked,
-                buttonColor = Color.Transparent,
+                trailingIconColor = Color.White,
                 loading = uiState.isAddingComment,
+                buttonColor = Color.Black.copy(alpha = 0.5f),
                 shape = RoundedCornerShape(20.sdp),
-                modifier = Modifier.size(35.sdp)
+                modifier = Modifier.size(35.sdp),
+                onClick = {
+                    focusManager.clearFocus()
+                    onSendClicked.invoke()
+                },
             )
         }
+
+        Spacer(Modifier.height(navigationBarHeight))
     }
 }
 

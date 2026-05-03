@@ -16,11 +16,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.livestreaming.streamly.config.navigation.Destination
 import com.livestreaming.streamly.config.utils.AppCompositionLocals.LocalParentNavController
-import com.livestreaming.streamly.ui.home.domain.usecase.ItemLiveStream
+import com.livestreaming.streamly.config.utils.AppUtils
+import com.livestreaming.streamly.ui.home.presentation.component.ItemLiveStream
 import com.livestreaming.streamly.ui.home.presentation.component.HeadingRow
 import com.livestreaming.streamly.ui.home.presentation.component.HomeAppBar
 import com.livestreaming.streamly.ui.home.presentation.component.NoStreamAvailable
@@ -29,11 +31,13 @@ import ir.kaaveh.sdpcompose.sdp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
+    val context = LocalContext.current
+    val navController = LocalParentNavController.current
     val uiState = viewModel.uiState.collectAsState()
     val liveStreams = viewModel.liveStreams.collectAsState()
-    val navController = LocalParentNavController.current
+    val currentUser = AppUtils.getCurrentUser(context)
 
-    Scaffold(topBar = { HomeAppBar() }) { insetPadding ->
+    Scaffold(topBar = { HomeAppBar(currentUser!!) {} }) { insetPadding ->
         Column(
             modifier = Modifier
                 .padding(

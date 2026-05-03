@@ -58,7 +58,7 @@ fun ConfirmationDialog(
         ) {
             SvgImage(
                 asset = "shield",
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.disabledContent,
                 modifier = Modifier.size(22.sdp)
             )
         }

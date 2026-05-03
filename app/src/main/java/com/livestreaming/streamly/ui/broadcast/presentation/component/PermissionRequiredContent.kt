@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.livestream.streamly.R
 import com.livestreaming.streamly.config.components.image.SvgImage
 import com.livestreaming.streamly.config.theme.MyApplicationTheme
+import com.livestreaming.streamly.config.theme.disabledContainer
 import com.livestreaming.streamly.config.theme.disabledContent
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
@@ -144,7 +145,7 @@ private fun HeadingValue(heading: String, value: String, icon: String) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.surfaceContainer,
+                color = MaterialTheme.colorScheme.disabledContainer,
                 shape = RoundedCornerShape(10.sdp)
             )
             .padding(10.sdp)

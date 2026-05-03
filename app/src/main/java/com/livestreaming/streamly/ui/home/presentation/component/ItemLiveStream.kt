@@ -1,4 +1,4 @@
-package com.livestreaming.streamly.ui.home.domain.usecase
+package com.livestreaming.streamly.ui.home.presentation.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,6 +16,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,13 +34,35 @@ import com.livestreaming.streamly.config.components.layout.UserImage
 import com.livestreaming.streamly.config.theme.MyApplicationTheme
 import com.livestreaming.streamly.config.theme.disabledContainer
 import com.livestreaming.streamly.config.theme.disabledContent
+import com.livestreaming.streamly.config.utils.DateTimeUtils.calculateTimeAgoFromMilli
 import com.livestreaming.streamly.core.model.Stream
 import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
+import kotlinx.coroutines.delay
+import java.util.Calendar
 
 @Composable
 fun ItemLiveStream(stream: Stream, onClick: () -> Unit) {
     val rounded = RoundedCornerShape(10.sdp)
+    var timeAgo by remember { mutableStateOf(calculateTimeAgoFromMilli(stream.startedAt)) }
+
+    LaunchedEffect(stream.startedAt) {
+        val now = Calendar.getInstance()
+        val streamStart = Calendar.getInstance().apply { timeInMillis = stream.startedAt }
+
+        val nowSeconds = now[Calendar.SECOND]
+        val startSeconds = streamStart[Calendar.SECOND]
+
+        val firstDifference = startSeconds - nowSeconds
+        val firstDelayInSeconds = if (firstDifference >= 0) firstDifference else firstDifference + 60
+
+        delay(firstDelayInSeconds * 1000L)
+
+        while (true) {
+            timeAgo = calculateTimeAgoFromMilli(stream.startedAt)
+            delay(60000L)
+        }
+    }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -126,7 +153,7 @@ fun ItemLiveStream(stream: Stream, onClick: () -> Unit) {
                 Spacer(Modifier.width(5.sdp))
 
                 Text(
-                    text = "2h ago",
+                    text = timeAgo,
                     fontSize = 10.ssp,
                     lineHeight = 10.ssp,
                     fontWeight = FontWeight.Medium,
