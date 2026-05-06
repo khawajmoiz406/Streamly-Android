@@ -94,4 +94,18 @@
     <string name="no_live_streams_msg">Be the first to go live!</string>
     <string name="go_live">Go Live</string>
 
+    <string name="stream_count_label">Streams</string>
+    <string name="stream_time_label">Stream Time</string>
+    <string name="avg_viewers_label">Avg. Viewers</string>
+    <string name="recent_streams">Recent Streams</string>
+    <string name="no_streams_yet">No streams yet</string>
+    <string name="theme">Theme</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="light_mode">Light Mode</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="sign_out_title">Sign out?</string>
+    <string name="sign_out_msg">Are you sure you want to sign out of your account?</string>
+    <string name="cancel">Cancel</string>
+    <string name="viewers_count_format">%1$d viewers · %2$s · %3$s</string>
+
 </resources>

@@ -1,5 +1,6 @@
 package com.livestreaming.streamly.config.theme
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,14 +16,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 
 object ThemeState {
     val darkTheme = mutableStateOf(true)
@@ -44,11 +48,12 @@ sealed class ThemeMode(val value: Int) {
 private val LightColorScheme = lightColorScheme(
     primary = Green,
     onPrimary = Color.White,
+    background = Color(0xFFF5F5F5),
+    surface = Color(0xFFFFFFFF),
 
     secondary = Orange,
     onSecondary = Color.White,
 )
-
 private val DarkColorScheme = darkColorScheme(
     primary = Green,
     onPrimary = Color.White,
@@ -70,9 +75,20 @@ fun MyApplicationTheme(
     darkTheme: Boolean = ThemeState.darkTheme.value,
     content: @Composable () -> Unit
 ) {
+    val view = LocalView.current
     val colorScheme = when {
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
+    }
+
+    if(!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = !darkTheme
+                isAppearanceLightNavigationBars = !darkTheme
+            }
+        }
     }
 
     MaterialTheme(

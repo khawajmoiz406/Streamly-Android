@@ -10,6 +10,7 @@ import com.livestreaming.streamly.ui.auth.presentation.register.RegisterScreen
 import com.livestreaming.streamly.ui.broadcast.presentation.BroadcastScreen
 import com.livestreaming.streamly.ui.dashboard.DashboardScreen
 import com.livestreaming.streamly.ui.home.presentation.HomeScreen
+import com.livestreaming.streamly.ui.profile.presentation.ProfileScreen
 import com.livestreaming.streamly.ui.watch.presentation.WatchScreen
 
 fun NavGraphBuilder.landingGraph() = navigation<Destination.LandingGraph>(
@@ -29,7 +30,7 @@ fun NavGraphBuilder.bottomNavGraph() = navigation<Destination.BottomNavGraph>(
     startDestination = Destination.Home
 ) {
     composable<Destination.Home> { HomeScreen() }
-    composable<Destination.Profile> { }
+    composable<Destination.Profile> { ProfileScreen() }
 }
 
 fun NavGraphBuilder.mainGraph() = navigation<Destination.MainGraph>(

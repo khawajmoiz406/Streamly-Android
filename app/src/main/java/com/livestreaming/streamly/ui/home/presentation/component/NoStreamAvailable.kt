@@ -57,8 +57,8 @@ fun NoStreamAvailable(onGoLiveClicked: () -> Unit) {
             Text(
                 text = stringResource(R.string.no_live_streams),
                 fontSize = 14.ssp,
-                color = Color.White,
                 fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
             )
 
             Spacer(Modifier.height(5.sdp))

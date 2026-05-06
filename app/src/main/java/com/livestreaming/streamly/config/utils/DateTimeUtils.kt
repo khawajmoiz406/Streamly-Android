@@ -10,6 +10,30 @@ object DateTimeUtils {
         return sdf.format(Date(milli))
     }
 
+    fun formatDurationShort(ms: Long): String {
+        if (ms <= 0) return "0m"
+        val totalMinutes = ms / 1000 / 60
+        val hours = totalMinutes / 60
+        val minutes = totalMinutes % 60
+        return when {
+            hours == 0L -> "${minutes}m"
+            minutes == 0L -> "${hours}h"
+            else -> "${hours}h ${minutes}m"
+        }
+    }
+
+    fun formatStreamTimeAgo(timeInMillis: Long): String {
+        val now = System.currentTimeMillis()
+        val diff = now - timeInMillis
+        val days = diff / 1000 / 60 / 60 / 24
+        return when {
+            days <= 0 -> "Today"
+            days == 1L -> "Yesterday"
+            days < 7 -> "$days days ago"
+            else -> calculateTimeAgoFromMilli(timeInMillis)
+        }
+    }
+
     fun calculateTimeAgoFromMilli(timeInMillis: Long): String {
         val now = System.currentTimeMillis()
         val diff = now - timeInMillis

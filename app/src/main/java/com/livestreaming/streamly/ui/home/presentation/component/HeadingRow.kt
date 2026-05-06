@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.livestream.streamly.R
@@ -45,7 +46,7 @@ fun HeadingRow(totalStreams: Int) {
             modifier = Modifier
                 .size(8.sdp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = alpha))
+                .background(Color.Red.copy(alpha = alpha))
         )
 
         Spacer(Modifier.width(5.sdp))
