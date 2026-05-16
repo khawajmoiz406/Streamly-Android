@@ -33,16 +33,27 @@ import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
 @Composable
-fun BoxScope.BroadcastTopOverlay(status: StreamStatus?, viewers: Int, muted: Boolean) {
+fun BoxScope.BroadcastTopOverlay(
+    status: StreamStatus?,
+    viewers: Int,
+    muted: Boolean,
+    isInPipMode: Boolean
+) {
     val shape = RoundedCornerShape(20.sdp)
     val cardColors = Color.Black.copy(alpha = 0.7f)
+
+    val textSize = if (isInPipMode) 7.ssp else 10.ssp
+    val space = if (isInPipMode) 5.sdp else 10.sdp
+    val paddingHorizontal = if (isInPipMode) 6.sdp else 12.sdp
+    val paddingVertical = if (isInPipMode) 4.sdp else 7.sdp
+    val imageSize = if (isInPipMode) 7.sdp else 12.sdp
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .background(Color.Transparent)
             .windowInsetsPadding(WindowInsets.statusBars)
-            .padding(10.sdp)
+            .padding(if (isInPipMode) 5.sdp else 10.sdp)
             .align(Alignment.TopCenter)
     ) {
         Row {
@@ -52,17 +63,18 @@ fun BoxScope.BroadcastTopOverlay(status: StreamStatus?, viewers: Int, muted: Boo
                 Row(
                     Modifier
                         .background(buttonInfo["color"] as Color, shape)
-                        .padding(horizontal = 12.sdp, vertical = 3.sdp)
+                        .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
                 ) {
                     Text(
                         text = stringResource(buttonInfo["label"] as Int).uppercase(),
-                        fontSize = 10.ssp,
+                        fontSize = textSize,
+                        lineHeight = textSize,
                         fontWeight = FontWeight.Medium,
                         color = buttonInfo["labelColor"] as Color
                     )
                 }
 
-                Spacer(Modifier.width(10.sdp))
+                Spacer(Modifier.width(space))
             }
 
 
@@ -70,19 +82,20 @@ fun BoxScope.BroadcastTopOverlay(status: StreamStatus?, viewers: Int, muted: Boo
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .background(cardColors, shape)
-                    .padding(horizontal = 12.sdp, vertical = 3.sdp)
+                    .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
             ) {
                 SvgImage(
                     asset = "eye_open",
                     color = Color.White,
-                    modifier = Modifier.size(12.sdp)
+                    modifier = Modifier.size(imageSize)
                 )
 
                 Spacer(Modifier.width(5.sdp))
 
                 Text(
                     text = viewers.toString(),
-                    fontSize = 10.ssp,
+                    fontSize = textSize,
+                    lineHeight = textSize,
                     fontWeight = FontWeight.Medium,
                     color = Color.White,
                 )
@@ -92,32 +105,34 @@ fun BoxScope.BroadcastTopOverlay(status: StreamStatus?, viewers: Int, muted: Boo
 
             StreamTimer(
                 status = status,
+                textSize = textSize,
                 modifier = Modifier
                     .background(cardColors, shape)
-                    .padding(horizontal = 12.sdp, vertical = 3.sdp)
+                    .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
             )
         }
 
         if (muted) {
-            Spacer(Modifier.height(20.sdp))
+            Spacer(Modifier.height(if (isInPipMode) 10.sdp else 20.sdp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.errorContainer, shape)
-                    .padding(horizontal = 12.sdp, vertical = 4.sdp)
+                    .padding(horizontal = paddingHorizontal, vertical = paddingVertical)
             ) {
                 SvgImage(
                     asset = "micro_phone_disable",
                     color = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.size(15.sdp)
+                    modifier = Modifier.size(if (isInPipMode) 8.sdp else 15.sdp)
                 )
 
                 Spacer(Modifier.width(8.sdp))
 
                 Text(
                     text = stringResource(R.string.mic_muted),
-                    fontSize = 11.ssp,
+                    fontSize = if (isInPipMode) 7.ssp else 11.ssp,
+                    lineHeight = if (isInPipMode) 7.ssp else 11.ssp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onErrorContainer,
                 )
@@ -133,12 +148,6 @@ private fun getButtonInfoAccordingly(streamStatus: StreamStatus, colorScheme: Co
             "label" to R.string.setting_things_up,
             "color" to Color.Black.copy(alpha = 0.7f),
             "labelColor" to Color.White
-        )
-
-        StreamStatus.Paused -> mapOf(
-            "label" to R.string.paused,
-            "color" to colorScheme.secondary,
-            "labelColor" to colorScheme.onSecondary
         )
 
         StreamStatus.Live -> mapOf(
@@ -159,7 +168,7 @@ private fun getButtonInfoAccordingly(streamStatus: StreamStatus, colorScheme: Co
 private fun PreviewBroadcastTopOverlay() {
     MyApplicationTheme {
         Box {
-            BroadcastTopOverlay(StreamStatus.Live, 100, true)
+            BroadcastTopOverlay(StreamStatus.Live, 100, muted = true, isInPipMode = false)
         }
     }
 }

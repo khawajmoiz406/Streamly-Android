@@ -30,26 +30,26 @@ import ir.kaaveh.sdpcompose.sdp
 import ir.kaaveh.sdpcompose.ssp
 
 @Composable
-fun CameraDisabledContent() {
+fun CameraDisabledContent(isInPipMode: Boolean) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .padding(horizontal = 20.sdp)
+            .padding(horizontal = if (isInPipMode) 10.sdp else 20.sdp)
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.disabledContainer, CircleShape)
-                .size(50.sdp)
+                .size(if (isInPipMode) 30.sdp else 50.sdp)
                 .clip(CircleShape)
         ) {
             SvgImage(
                 asset = "camera_disable",
                 color = MaterialTheme.colorScheme.disabledContent,
-                modifier = Modifier.size(25.sdp)
+                modifier = Modifier.size(if (isInPipMode) 15.sdp else 25.sdp)
             )
         }
 
@@ -57,7 +57,8 @@ fun CameraDisabledContent() {
 
         Text(
             text = stringResource(R.string.camera_disabled),
-            fontSize = 13.ssp,
+            fontSize = if (isInPipMode) 8.ssp else 13.ssp,
+            lineHeight = if (isInPipMode) 8.ssp else 13.ssp,
             color = Color.White,
             fontWeight = FontWeight.SemiBold,
         )
@@ -66,8 +67,8 @@ fun CameraDisabledContent() {
 
         Text(
             text = stringResource(R.string.camera_disabled_msg),
-            fontSize = 11.ssp,
-            lineHeight = 11.ssp,
+            fontSize = if (isInPipMode) 6.ssp else 11.ssp,
+            lineHeight = if (isInPipMode) 6.ssp else 11.ssp,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.disabledContent,
         )
@@ -78,6 +79,6 @@ fun CameraDisabledContent() {
 @Composable
 private fun PreviewCameraDisabledContent() {
     MyApplicationTheme {
-        CameraDisabledContent()
+        CameraDisabledContent(false)
     }
 }

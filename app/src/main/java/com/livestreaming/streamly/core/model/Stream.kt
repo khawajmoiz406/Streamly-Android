@@ -1,6 +1,7 @@
 package com.livestreaming.streamly.core.model
 
 import androidx.compose.runtime.Stable
+import java.io.Serializable
 
 @Stable
 data class Stream(
@@ -18,10 +19,9 @@ data class Stream(
     val startedAt: Long = 0L,
     val endedAt: Long = 0L,
     val status: String = StreamStatus.Setting.value
-) {
+): Serializable {
     fun getStreamStatus() = when (status) {
         "setting" -> StreamStatus.Setting
-        "paused" -> StreamStatus.Paused
         "live" -> StreamStatus.Live
         "ended" -> StreamStatus.Ended
         else -> StreamStatus.Setting
@@ -30,7 +30,6 @@ data class Stream(
 
 sealed class StreamStatus(val value: String) {
     data object Setting : StreamStatus("setting")
-    data object Paused : StreamStatus("paused")
     data object Live : StreamStatus("live")
     data object Ended : StreamStatus("ended")
 }

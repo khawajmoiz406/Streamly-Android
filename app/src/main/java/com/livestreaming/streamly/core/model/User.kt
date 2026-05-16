@@ -1,5 +1,7 @@
 package com.livestreaming.streamly.core.model
 
+import java.io.Serializable
+
 data class User(
     val id: String?,
     val name: String?,
@@ -7,7 +9,7 @@ data class User(
     val avatar: String?,
     val phoneNumber: String?,
     val accountType: Int,
-) {
+) : Serializable {
     fun getAccountType() = AccountType.fromValue(accountType)
 }
 

@@ -1,12 +1,12 @@
 package com.livestreaming.streamly.ui.broadcast.presentation
 
 import android.annotation.SuppressLint
-import android.app.Activity
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -28,33 +28,44 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.livestream.streamly.R
 import com.livestreaming.streamly.config.components.layout.AgoraCameraView
 import com.livestreaming.streamly.config.components.layout.ConfirmationDialog
+import com.livestreaming.streamly.config.components.state.KeepScreenOn
 import com.livestreaming.streamly.config.utils.AgoraManager
 import com.livestreaming.streamly.config.utils.AppCompositionLocals.LocalParentNavController
 import com.livestreaming.streamly.config.utils.AppUtils
 import com.livestreaming.streamly.config.utils.PermissionUtils
 import com.livestreaming.streamly.config.utils.PermissionUtils.corePermissions
+import com.livestreaming.streamly.config.utils.PictureInPictureUtils
 import com.livestreaming.streamly.config.utils.SnackbarType
 import com.livestreaming.streamly.config.utils.SnackbarUtils
+import com.livestreaming.streamly.core.model.StreamStatus
+import com.livestreaming.streamly.receiver.PipEvent
+import com.livestreaming.streamly.receiver.PipEventBus
+import com.livestreaming.streamly.service.StreamForegroundService
 import com.livestreaming.streamly.ui.broadcast.presentation.component.BroadcastBottomOverlay
 import com.livestreaming.streamly.ui.broadcast.presentation.component.BroadcastTopOverlay
 import com.livestreaming.streamly.ui.broadcast.presentation.component.CameraDisabledContent
 import com.livestreaming.streamly.ui.broadcast.presentation.component.PermissionsDeniedContent
 import com.livestreaming.streamly.ui.broadcast.presentation.component.PermissionsRequiredContent
 import com.livestreaming.streamly.ui.broadcast.presentation.component.StreamSetupOverlay
+import kotlinx.coroutines.launch
 
 @SuppressLint("LocalContextGetResourceValueCall", "UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
     val context = LocalContext.current
+    val activity = LocalActivity.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val uiState = viewModel.uiState.collectAsState()
     val streamState = viewModel.stream.collectAsState()
     val comments = viewModel.comments.collectAsState()
     val navController = LocalParentNavController.current
+    val isInPipMode = PipEventBus.pipState.collectAsState()
 
     var firstTime = remember { true }
     val agoraManager = remember { AgoraManager(context) }
+    val serviceStarted = remember { mutableStateOf(false) }
+    val currentUser = remember { AppUtils.getCurrentUser(context) }
     var permanentlyDenied by remember { mutableStateOf(false) }
     var showEndStreamDialog by remember { mutableStateOf(false) }
     var permissionsGranted by remember {
@@ -66,7 +77,7 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
         onResult = {
             PermissionUtils.handlePermissionResult(
                 result = it,
-                activity = context as Activity,
+                activity = activity!!,
                 onDenied = { permissionsGranted = false },
                 onGranted = { permissionsGranted = true },
                 onPermanentlyDenied = { permanentlyDenied = true }
@@ -74,17 +85,44 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
         }
     )
 
+    KeepScreenOn()
+
     LaunchedEffect(lifecycleOwner) {
-        handleEvents(viewModel, agoraManager)
+        launch { handleEvents(viewModel, agoraManager) }
+        launch { handlePipEventBus(viewModel) }
+    }
+
+    LaunchedEffect(streamState.value?.getStreamStatus()) {
+        if (!serviceStarted.value && streamState.value?.getStreamStatus() == StreamStatus.Live) {
+            serviceStarted.value = true
+            StreamForegroundService.start(
+                context = activity!!,
+                isBroadcaster = true,
+                stream = streamState.value!!,
+                user = currentUser!!,
+            )
+        }
+    }
+
+    LaunchedEffect(streamState.value?.muted, streamState.value?.cameraOff) {
+        if (!isInPipMode.value) return@LaunchedEffect
+        val value = streamState.value ?: return@LaunchedEffect
+        PictureInPictureUtils.updatePipActions(
+            activity = activity!!,
+            isMuted = value.muted,
+            isCameraMute = value.cameraOff,
+            isBroadcaster = true
+        )
     }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                permissionsGranted = PermissionUtils.areAllGranted(context, corePermissions)
+                val permissions = corePermissions
+                permissionsGranted = PermissionUtils.areAllGranted(context, permissions)
                 permanentlyDenied = if (firstTime || permissionsGranted) false else {
-                    PermissionUtils.getDeniedPermissions(context, corePermissions).any {
-                        PermissionUtils.isPermanentlyDenied(context as Activity, it)
+                    PermissionUtils.getDeniedPermissions(context, permissions).any {
+                        PermissionUtils.isPermanentlyDenied(activity!!, it)
                     }
                 }
                 firstTime = false
@@ -92,12 +130,26 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            if (isInPipMode.value) return@onDispose
             viewModel.endStream()
             agoraManager.stopBroadcast()
-            lifecycleOwner.lifecycle.removeObserver(observer)
+            StreamForegroundService.stop(context)
         }
     }
 
+    BackHandler(streamState.value != null && !isInPipMode.value) {
+        if (serviceStarted.value) {
+            PictureInPictureUtils.enterPipMode(
+                activity = activity!!,
+                isMuted = streamState.value?.muted ?: false,
+                isCameraMute = streamState.value?.cameraOff ?: false,
+                isBroadcaster = true
+            )
+        } else {
+            navController?.popBackStack()
+        }
+    }
 
     Scaffold { _ ->
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -106,6 +158,7 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
                     AgoraCameraView(
                         context = context,
                         isBroadcaster = true,
+                        isInPipMode = isInPipMode.value,
                         lifecycleOwner = lifecycleOwner,
                         agoraManager = agoraManager,
                         onJoinSuccess = { viewModel.goLive() },
@@ -122,16 +175,18 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
                         )
                     } else {
                         if (streamState.value?.cameraOff == true)
-                            CameraDisabledContent()
+                            CameraDisabledContent(isInPipMode = isInPipMode.value)
 
                         BroadcastTopOverlay(
                             status = streamState.value?.getStreamStatus(),
                             viewers = streamState.value?.viewerCount ?: 0,
-                            muted = streamState.value?.muted ?: false
+                            muted = streamState.value?.muted ?: false,
+                            isInPipMode = isInPipMode.value
                         )
 
                         BroadcastBottomOverlay(
                             comments = comments.value,
+                            isInPipMode = isInPipMode.value,
                             title = streamState.value?.title ?: "",
                             status = streamState.value?.getStreamStatus(),
                             isMuted = streamState.value?.muted ?: false,
@@ -194,6 +249,15 @@ private suspend fun handleEvents(viewModel: BroadcastViewModel, agoraManager: Ag
             is BroadcastEvents.OnError -> {
                 SnackbarUtils.show(message = event.error, snackbarType = SnackbarType.Error)
             }
+        }
+    }
+}
+
+private suspend fun handlePipEventBus(viewModel: BroadcastViewModel) {
+    PipEventBus.events.collect { event ->
+        when (event) {
+            is PipEvent.ToggleMic -> viewModel.toggleMicrophone()
+            is PipEvent.ToggleCamera -> viewModel.toggleCameraOnOff()
         }
     }
 }
