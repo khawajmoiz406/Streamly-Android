@@ -22,9 +22,9 @@ import androidx.navigation.NavController
 import com.livestreaming.streamly.config.navigation.Destination
 import com.livestreaming.streamly.config.utils.AppCompositionLocals.LocalParentNavController
 import com.livestreaming.streamly.config.utils.AppUtils
-import com.livestreaming.streamly.ui.home.presentation.component.ItemLiveStream
 import com.livestreaming.streamly.ui.home.presentation.component.HeadingRow
 import com.livestreaming.streamly.ui.home.presentation.component.HomeAppBar
+import com.livestreaming.streamly.ui.home.presentation.component.ItemLiveStream
 import com.livestreaming.streamly.ui.home.presentation.component.NoStreamAvailable
 import ir.kaaveh.sdpcompose.sdp
 
@@ -41,7 +41,6 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
         Column(
             modifier = Modifier
                 .padding(
-                    bottom = insetPadding.calculateBottomPadding(),
                     top = insetPadding.calculateTopPadding(),
                     start = 10.sdp,
                     end = 10.sdp
@@ -66,7 +65,10 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                 }
 
                 else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(10.sdp)) {
-                    items(liveStreams.value?.size ?: 0) { index ->
+                    items(
+                        count = liveStreams.value?.size ?: 0,
+                        key = { liveStreams.value?.get(it)?.id ?: it }
+                    ) { index ->
                         val item = liveStreams.value?.get(index)
                         ItemLiveStream(item!!) {
                             navigate(navController, Destination.StreamViewer(item.id))
@@ -74,6 +76,8 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                     }
                 }
             }
+
+            Spacer(Modifier.height(10.sdp))
         }
     }
 }

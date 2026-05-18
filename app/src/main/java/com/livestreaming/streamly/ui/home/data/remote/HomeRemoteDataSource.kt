@@ -2,6 +2,7 @@ package com.livestreaming.streamly.ui.home.data.remote
 
 import android.content.Context
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.livestreaming.streamly.core.model.Stream
 import com.livestreaming.streamly.core.model.StreamStatus
 import com.livestreaming.streamly.core.remote.ApiException
@@ -20,6 +21,7 @@ class HomeRemoteDataSource @Inject constructor(@param:ApplicationContext private
         val listener = firestore
             .collection(STREAMS)
             .whereEqualTo("status", StreamStatus.Live.value)
+            .orderBy("startedAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     close(error)
@@ -39,6 +41,7 @@ class HomeRemoteDataSource @Inject constructor(@param:ApplicationContext private
         val docRef = firestore
             .collection(STREAMS)
             .whereEqualTo("status", StreamStatus.Live.value)
+            .orderBy("startedAt", Query.Direction.DESCENDING)
             .get()
             .await()
 
