@@ -68,6 +68,7 @@ fun ConfirmationDialog(
         Text(
             text = title,
             fontSize = 14.ssp,
+            textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
         )

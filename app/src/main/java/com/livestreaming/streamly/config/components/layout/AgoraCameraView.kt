@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
@@ -20,15 +21,17 @@ import com.livestreaming.streamly.config.utils.AgoraManager
 @Composable
 fun AgoraCameraView(
     context: Context,
+    isInPipMode: Boolean,
     isBroadcaster: Boolean,
-    lifecycleOwner: LifecycleOwner,
     agoraManager: AgoraManager,
+    lifecycleOwner: LifecycleOwner,
     onJoinSuccess: ((uid: Int) -> Unit)? = null,
     onRemoteUserJoined: ((uid: Int) -> Unit)? = null,
     onRemoteUserLeft: (() -> Unit)? = null,
     onError: ((message: String) -> Unit)? = null,
 ) {
     val localSurfaceView = remember { SurfaceView(context) }
+    val isInPipModeRef = rememberUpdatedState(isInPipMode)
 
     LaunchedEffect(lifecycleOwner) {
         agoraManager.apply {
@@ -42,13 +45,14 @@ fun AgoraCameraView(
         }
     }
 
-    if (isBroadcaster) {
-        DisposableEffect(lifecycleOwner) {
-            agoraManager.initialize()
+    DisposableEffect(lifecycleOwner) {
+        agoraManager.initialize()
+
+        if (isBroadcaster) {
             val observer = LifecycleEventObserver { _, event ->
                 when (event) {
                     Lifecycle.Event.ON_RESUME -> agoraManager.startPreview(localSurfaceView)
-                    Lifecycle.Event.ON_PAUSE -> agoraManager.stopPreview()
+                    Lifecycle.Event.ON_STOP -> if (!isInPipModeRef.value) agoraManager.stopPreview()
                     else -> {}
                 }
             }
@@ -56,13 +60,12 @@ fun AgoraCameraView(
             lifecycleOwner.lifecycle.addObserver(observer)
             onDispose {
                 lifecycleOwner.lifecycle.removeObserver(observer)
-                agoraManager.destroy()
+                if (!isInPipModeRef.value) agoraManager.destroy()
             }
-        }
-    } else {
-        DisposableEffect(lifecycleOwner) {
-            agoraManager.initialize()
-            onDispose { agoraManager.destroy() }
+        } else {
+            onDispose {
+                if (!isInPipModeRef.value) agoraManager.destroy()
+            }
         }
     }
 

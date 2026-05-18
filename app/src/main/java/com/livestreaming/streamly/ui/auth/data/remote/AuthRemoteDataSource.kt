@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.livestream.streamly.R
+import com.livestreaming.streamly.core.di.ActivityHolder
 import com.livestreaming.streamly.core.model.AccountType
 import com.livestreaming.streamly.core.model.User
 import com.livestreaming.streamly.core.remote.ApiException
@@ -29,10 +30,9 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class AuthRemoteDataSource @Inject constructor(
-    @param:ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context,
 ) {
     private val firebaseAuth = FirebaseAuth.getInstance()
-    private var credentialManager = CredentialManager.create(context)
 
     suspend fun login(request: LoginRequest): User? = try {
         if (request.accountType == AccountType.Email) {
@@ -79,6 +79,11 @@ class AuthRemoteDataSource @Inject constructor(
     }
 
     private suspend fun getGoogleAuthCredentials(): AuthCredential {
+        val activity = ActivityHolder.get()
+            ?: throw ApiException.UnknownException(context, "Activity not available")
+
+        val credentialManager = CredentialManager.create(activity)
+
         val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(
             serverClientId = context.getString(R.string.default_web_client_id)
         ).build()
@@ -87,7 +92,7 @@ class AuthRemoteDataSource @Inject constructor(
             .addCredentialOption(signInWithGoogleOption)
             .build()
 
-        val result = credentialManager.getCredential(context, request)
+        val result = credentialManager.getCredential(activity, request)
 
         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential.data)
         return GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)

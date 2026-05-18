@@ -44,6 +44,7 @@ import ir.kaaveh.sdpcompose.ssp
 fun BoxScope.BroadcastBottomOverlay(
     title: String,
     isMuted: Boolean,
+    isInPipMode: Boolean,
     isEndingStream: Boolean,
     isCameraDisabled: Boolean,
     status: StreamStatus?,
@@ -69,6 +70,8 @@ fun BoxScope.BroadcastBottomOverlay(
             .padding(10.sdp)
             .align(Alignment.BottomCenter)
     ) {
+
+        if (isInPipMode) return@Column
 
         comments?.let {
             key(it) { StreamComments(it) }
@@ -159,9 +162,10 @@ private fun PreviewBroadcastBottomOverlay() {
             BroadcastBottomOverlay(
                 title = "Building a SaaS in 24 hours",
                 isMuted = false,
+                isInPipMode = false,
                 isCameraDisabled = false,
                 isEndingStream = false,
-                status = StreamStatus.Paused,
+                status = StreamStatus.Live,
                 onMicrophoneClicked = { },
                 onCameraClicked = { },
                 onChangeCameraClicked = { },
