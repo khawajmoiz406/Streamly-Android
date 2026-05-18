@@ -1,6 +1,7 @@
 package com.livestreaming.streamly.ui.broadcast.presentation
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -12,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +27,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation.NavController
 import com.livestream.streamly.R
 import com.livestreaming.streamly.config.components.layout.AgoraCameraView
 import com.livestreaming.streamly.config.components.layout.ConfirmationDialog
@@ -34,9 +37,11 @@ import com.livestreaming.streamly.config.utils.AppCompositionLocals.LocalParentN
 import com.livestreaming.streamly.config.utils.AppUtils
 import com.livestreaming.streamly.config.utils.PermissionUtils
 import com.livestreaming.streamly.config.utils.PermissionUtils.corePermissions
+import com.livestreaming.streamly.config.utils.PermissionUtils.notificationPermission
 import com.livestreaming.streamly.config.utils.PictureInPictureUtils
 import com.livestreaming.streamly.config.utils.SnackbarType
 import com.livestreaming.streamly.config.utils.SnackbarUtils
+import com.livestreaming.streamly.core.model.Stream
 import com.livestreaming.streamly.core.model.StreamStatus
 import com.livestreaming.streamly.receiver.PipEvent
 import com.livestreaming.streamly.receiver.PipEventBus
@@ -68,8 +73,9 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
     val currentUser = remember { AppUtils.getCurrentUser(context) }
     var permanentlyDenied by remember { mutableStateOf(false) }
     var showEndStreamDialog by remember { mutableStateOf(false) }
+    var streamEndedIntentionally by remember { mutableStateOf(false) }
     var permissionsGranted by remember {
-        mutableStateOf(PermissionUtils.areAllGranted(context, corePermissions))
+        mutableStateOf(PermissionUtils.areAllGranted(context, corePermissions + notificationPermission))
     }
 
     val launcher = rememberLauncherForActivityResult(
@@ -89,7 +95,7 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
 
     LaunchedEffect(lifecycleOwner) {
         launch { handleEvents(viewModel, agoraManager) }
-        launch { handlePipEventBus(viewModel) }
+        launch { handlePipEventBus(viewModel, agoraManager, streamState) {showEndStreamDialog = true} }
     }
 
     LaunchedEffect(streamState.value?.getStreamStatus()) {
@@ -117,17 +123,27 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                val permissions = corePermissions
-                permissionsGranted = PermissionUtils.areAllGranted(context, permissions)
-                permanentlyDenied = if (firstTime || permissionsGranted) false else {
-                    PermissionUtils.getDeniedPermissions(context, permissions).any {
-                        PermissionUtils.isPermanentlyDenied(activity!!, it)
-                    }
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> {
+                    if (!streamEndedIntentionally && streamState.value != null && streamState.value?.getStreamStatus() == StreamStatus.Live && !isInPipMode.value)
+                        enablePipMode(activity, navController, streamState, serviceStarted)
                 }
-                firstTime = false
+
+                Lifecycle.Event.ON_RESUME -> {
+                    val permissions = corePermissions + notificationPermission
+                    permissionsGranted = PermissionUtils.areAllGranted(context, permissions)
+                    permanentlyDenied = if (firstTime || permissionsGranted) false else {
+                        PermissionUtils.getDeniedPermissions(context, permissions).any {
+                            PermissionUtils.isPermanentlyDenied(activity!!, it)
+                        }
+                    }
+                    firstTime = false
+                }
+
+                else -> {}
             }
         }
+
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
@@ -138,17 +154,8 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
         }
     }
 
-    BackHandler(streamState.value != null && !isInPipMode.value) {
-        if (serviceStarted.value) {
-            PictureInPictureUtils.enterPipMode(
-                activity = activity!!,
-                isMuted = streamState.value?.muted ?: false,
-                isCameraMute = streamState.value?.cameraOff ?: false,
-                isBroadcaster = true
-            )
-        } else {
-            navController?.popBackStack()
-        }
+    BackHandler(streamState.value != null && streamState.value?.getStreamStatus() == StreamStatus.Live && !isInPipMode.value) {
+        enablePipMode(activity, navController, streamState, serviceStarted)
     }
 
     Scaffold { _ ->
@@ -195,14 +202,10 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
                             onChangeCameraClicked = { agoraManager.switchCamera() },
                             onEndClicked = { showEndStreamDialog = true },
                             onCameraClicked = {
-                                val newValue = !(streamState.value?.cameraOff ?: true)
-                                agoraManager.muteLocalCamera(newValue)
-                                viewModel.toggleCameraOnOff()
+                                handleCameraClicked(viewModel, agoraManager, streamState)
                             },
                             onMicrophoneClicked = {
-                                val newValue = !(streamState.value?.muted ?: true)
-                                agoraManager.toggleMic(newValue)
-                                viewModel.toggleMicrophone()
+                                handleMicClicked(viewModel, agoraManager, streamState)
                             }
                         )
                     }
@@ -214,7 +217,10 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
 
                 else -> {
                     PermissionsRequiredContent {
-                        PermissionUtils.requestPermissions(corePermissions, launcher)
+                        PermissionUtils.requestPermissions(
+                            permissions = corePermissions + notificationPermission,
+                            launcher = launcher
+                        )
                     }
                 }
             }
@@ -230,6 +236,7 @@ fun BroadcastScreen(viewModel: BroadcastViewModel = hiltViewModel()) {
                     negativeClick = { showEndStreamDialog = false },
                     positionClick = {
                         showEndStreamDialog = false
+                        streamEndedIntentionally = true
                         navController?.popBackStack()
                     },
                 )
@@ -253,11 +260,56 @@ private suspend fun handleEvents(viewModel: BroadcastViewModel, agoraManager: Ag
     }
 }
 
-private suspend fun handlePipEventBus(viewModel: BroadcastViewModel) {
+private suspend fun handlePipEventBus(
+    viewModel: BroadcastViewModel,
+    agoraManager: AgoraManager,
+    streamState: State<Stream?>,
+    onEndEvent: () -> Unit,
+) {
     PipEventBus.events.collect { event ->
         when (event) {
-            is PipEvent.ToggleMic -> viewModel.toggleMicrophone()
-            is PipEvent.ToggleCamera -> viewModel.toggleCameraOnOff()
+            is PipEvent.ToggleMic -> handleMicClicked(viewModel, agoraManager, streamState)
+            is PipEvent.ToggleCamera -> handleCameraClicked(viewModel, agoraManager, streamState)
+            is PipEvent.EndStream -> onEndEvent.invoke()
+            else -> {}
         }
     }
+}
+
+private fun enablePipMode(
+    activity: Activity?,
+    navController: NavController?,
+    streamState: State<Stream?>,
+    serviceStarted: State<Boolean>
+) {
+    if (serviceStarted.value) {
+        PictureInPictureUtils.enterPipMode(
+            activity = activity!!,
+            isMuted = streamState.value?.muted ?: false,
+            isCameraMute = streamState.value?.cameraOff ?: false,
+            isBroadcaster = true
+        )
+    } else {
+        navController?.popBackStack()
+    }
+}
+
+private fun handleMicClicked(
+    viewModel: BroadcastViewModel,
+    agoraManager: AgoraManager,
+    streamState: State<Stream?>
+) {
+    val newValue = !(streamState.value?.muted ?: true)
+    agoraManager.toggleMic(newValue)
+    viewModel.toggleMicrophone()
+}
+
+private fun handleCameraClicked(
+    viewModel: BroadcastViewModel,
+    agoraManager: AgoraManager,
+    streamState: State<Stream?>
+) {
+    val newValue = !(streamState.value?.cameraOff ?: true)
+    agoraManager.muteLocalCamera(newValue)
+    viewModel.toggleCameraOnOff()
 }

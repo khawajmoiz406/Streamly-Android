@@ -22,9 +22,12 @@ import com.livestreaming.streamly.config.theme.MyApplicationTheme
 import com.livestreaming.streamly.config.theme.ThemeState
 import com.livestreaming.streamly.config.utils.AppCompositionLocals.LocalParentNavController
 import com.livestreaming.streamly.config.utils.AppUtils
+import com.livestreaming.streamly.config.utils.PictureInPictureUtils.ACTION_END_STREAM
+import com.livestreaming.streamly.config.utils.PictureInPictureUtils.ACTION_LEAVE_CHANNEL
 import com.livestreaming.streamly.config.utils.PictureInPictureUtils.ACTION_MUTE_CAMERA
 import com.livestreaming.streamly.config.utils.PictureInPictureUtils.ACTION_TOGGLE_MIC
 import com.livestreaming.streamly.config.utils.SnackbarUtils
+import com.livestreaming.streamly.core.di.ActivityHolder
 import com.livestreaming.streamly.receiver.PictureInPictureReceiver
 import com.livestreaming.streamly.receiver.PipEventBus
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,6 +38,8 @@ class MainActivity : ComponentActivity() {
     private val filter = IntentFilter().apply {
         addAction(ACTION_TOGGLE_MIC)
         addAction(ACTION_MUTE_CAMERA)
+        addAction(ACTION_LEAVE_CHANNEL)
+        addAction(ACTION_END_STREAM)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,8 +64,14 @@ class MainActivity : ComponentActivity() {
         PipEventBus.emitPipState(isInPictureInPictureMode)
     }
 
+    override fun onResume() {
+        super.onResume()
+        ActivityHolder.set(this)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        ActivityHolder.clear()
         unregisterReceiver(pipReceiver)
     }
 }

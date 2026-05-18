@@ -1,10 +1,8 @@
 package com.livestreaming.streamly.config.components.layout
 
 import android.content.Context
-import android.os.Build
 import android.view.SurfaceView
 import android.widget.FrameLayout
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -34,7 +32,6 @@ fun AgoraCameraView(
 ) {
     val localSurfaceView = remember { SurfaceView(context) }
     val isInPipModeRef = rememberUpdatedState(isInPipMode)
-    val activity = LocalActivity.current
 
     LaunchedEffect(lifecycleOwner) {
         agoraManager.apply {
@@ -55,14 +52,7 @@ fun AgoraCameraView(
             val observer = LifecycleEventObserver { _, event ->
                 when (event) {
                     Lifecycle.Event.ON_RESUME -> agoraManager.startPreview(localSurfaceView)
-                    Lifecycle.Event.ON_PAUSE -> {
-                        val isGoingToPip = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            activity?.isInPictureInPictureMode == true
-                        } else false
-
-                        if (!isGoingToPip) agoraManager.stopPreview()
-                    }
-
+                    Lifecycle.Event.ON_STOP -> if (!isInPipModeRef.value) agoraManager.stopPreview()
                     else -> {}
                 }
             }

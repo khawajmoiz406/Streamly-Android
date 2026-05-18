@@ -71,6 +71,7 @@ fun AppTextField(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     containerColor: Color = MaterialTheme.colorScheme.surface,
     error: String? = null,
+    labelColor: Color? = null,
     colors: TextFieldColors = TextFieldDefaults.colors(
         focusedContainerColor = containerColor,
         unfocusedContainerColor = containerColor,
@@ -92,7 +93,7 @@ fun AppTextField(
         label?.let {
             Text(
                 text = it,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = labelColor ?: MaterialTheme.colorScheme.onSurface,
                 fontSize = 11.ssp,
             )
 
@@ -140,7 +141,7 @@ fun AppTextField(
                             Text(
                                 text = placeholder,
                                 fontSize = fontSize,
-                                color = MaterialTheme.colorScheme.outline.copy(0.5f)
+                                color = MaterialTheme.colorScheme.disabledContent
                             )
                         }
                     } else null,

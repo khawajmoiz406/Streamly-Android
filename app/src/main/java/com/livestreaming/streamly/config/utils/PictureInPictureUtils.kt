@@ -15,8 +15,12 @@ import com.livestream.streamly.R
 object PictureInPictureUtils {
     const val ACTION_TOGGLE_MIC = "com.livestream.streamly.ACTION_TOGGLE_MIC"
     const val ACTION_MUTE_CAMERA = "com.livestream.streamly.ACTION_MUTE_CAMERA"
+    const val ACTION_LEAVE_CHANNEL = "com.livestream.streamly.ACTION_LEAVE_CHANNEL"
+    const val ACTION_END_STREAM = "com.livestream.streamly.ACTION_END_STREAM"
     const val REQUEST_MIC = 100
-    const val REQUEST_CAMERA = 102
+    const val REQUEST_CAMERA = 101
+    const val REQUEST_LEAVE_CHANNEL = 102
+    const val REQUEST_END_STREAM = 103
 
     fun enterPipMode(
         activity: Activity,
@@ -31,7 +35,7 @@ object PictureInPictureUtils {
             .setActions(buildActions(activity, isMuted, isCameraMute, isBroadcaster))
             .apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    setAutoEnterEnabled(true)
+                    setAutoEnterEnabled(false)
                 }
             }
             .build()

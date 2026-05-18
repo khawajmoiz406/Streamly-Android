@@ -10,7 +10,6 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResultLauncher
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
@@ -25,8 +24,13 @@ object PermissionUtils {
             arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         } else emptyArray()
 
+    val notificationPermission
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS)
+        } else emptyArray()
+
     val allPermissions: Array<String>
-        get() = corePermissions + legacyStoragePermissions
+        get() = corePermissions + legacyStoragePermissions + notificationPermission
 
     fun isGranted(context: Context, permission: String): Boolean {
         return ContextCompat.checkSelfPermission(

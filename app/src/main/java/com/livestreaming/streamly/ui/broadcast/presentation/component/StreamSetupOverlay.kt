@@ -29,6 +29,7 @@ import com.livestreaming.streamly.config.components.button.AppLoadingButton
 import com.livestreaming.streamly.config.components.input.AppTextField
 import com.livestreaming.streamly.config.components.state.FieldState
 import com.livestreaming.streamly.config.theme.MyApplicationTheme
+import com.livestreaming.streamly.config.theme.disabledContainer
 import com.livestreaming.streamly.ui.broadcast.presentation.BroadcastUiState
 import ir.kaaveh.sdpcompose.sdp
 
@@ -56,11 +57,12 @@ fun BoxScope.StreamSetupOverlay(
             label = stringResource(R.string.stream_title),
             height = 35.sdp,
             imeAction = ImeAction.Next,
+            labelColor = Color.White,
             onValueChange = { onFieldChange.invoke(it) { state -> copy(title = state) } },
             keyboardType = KeyboardType.Text,
             modifier = Modifier.fillMaxWidth(),
             placeholder = stringResource(R.string.stream_title_hint),
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.disabledContainer,
             borderColor = MaterialTheme.colorScheme.outline,
             onImeActionPerformed = { focusManager.moveFocus(FocusDirection.Next) },
             error = uiState.title.error?.let { stringResource(it) },
@@ -73,13 +75,14 @@ fun BoxScope.StreamSetupOverlay(
             label = stringResource(R.string.stream_description),
             height = 70.sdp,
             singleLine = false,
+            labelColor = Color.White,
             contentPadding = PaddingValues(horizontal = 12.sdp, vertical = 8.sdp),
             imeAction = ImeAction.Done,
             onValueChange = { onFieldChange.invoke(it) { state -> copy(description = state) } },
             keyboardType = KeyboardType.Email,
             modifier = Modifier.fillMaxWidth(),
             placeholder = stringResource(R.string.stream_description_hint),
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.disabledContainer,
             borderColor = MaterialTheme.colorScheme.outline,
             onImeActionPerformed = { focusManager.clearFocus() },
             error = uiState.description.error?.let { stringResource(it) },

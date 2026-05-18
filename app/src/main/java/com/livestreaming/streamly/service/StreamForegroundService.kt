@@ -13,6 +13,10 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.livestream.streamly.R
 import com.livestreaming.streamly.MainActivity
+import com.livestreaming.streamly.config.utils.PictureInPictureUtils.ACTION_END_STREAM
+import com.livestreaming.streamly.config.utils.PictureInPictureUtils.ACTION_LEAVE_CHANNEL
+import com.livestreaming.streamly.config.utils.PictureInPictureUtils.REQUEST_END_STREAM
+import com.livestreaming.streamly.config.utils.PictureInPictureUtils.REQUEST_LEAVE_CHANNEL
 import com.livestreaming.streamly.core.model.Stream
 import com.livestreaming.streamly.core.model.User
 import com.livestreaming.streamly.ui.broadcast.domain.usecase.EndStreamUseCase
@@ -39,13 +43,10 @@ class StreamForegroundService : Service() {
     lateinit var leaveStreamUseCase: LeaveStreamUseCase
 
     companion object {
-        const val ACTION_START = "ACTION_START"
-        const val ACTION_STOP = "ACTION_STOP"
         const val CHANNEL_ID = "stream_channel"
 
         fun start(context: Context, isBroadcaster: Boolean, stream: Stream, user: User) =
             Intent(context, StreamForegroundService::class.java).apply {
-                action = ACTION_START
                 putExtra("EXTRA_IS_BROADCASTER", isBroadcaster)
                 putExtra("EXTRA_STREAM", stream)
                 putExtra("EXTRA_USER", user)
@@ -63,13 +64,7 @@ class StreamForegroundService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val action = intent?.action
-
-        when (action) {
-            ACTION_START -> initForegroundService(intent)
-            ACTION_STOP -> stopSelf()
-        }
-
+        initForegroundService(intent)
         return START_STICKY
     }
 
@@ -94,17 +89,16 @@ class StreamForegroundService : Service() {
     private fun initForegroundService(intent: Intent?) {
         intent?.let {
             isBroadcaster = it.getBooleanExtra("EXTRA_IS_BROADCASTER", false)
-            stream = it.getSerializableExtra("EXTRA_STREAM", Stream::class.java) as Stream
-            user = it.getSerializableExtra("EXTRA_USER", User::class.java) as User
+            stream = it.getSerializableExtra("EXTRA_STREAM") as Stream
+            user = it.getSerializableExtra("EXTRA_USER") as User
 
             val notification = buildNotification(isBroadcaster)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                startForeground(
-                    101,
-                    notification,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA or
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
-                )
+                val serviceType = if (isBroadcaster) ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA or
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+                else ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+
+                startForeground(101, notification, serviceType)
             } else {
                 startForeground(101, notification)
             }
@@ -114,19 +108,22 @@ class StreamForegroundService : Service() {
     private fun buildNotification(isBroadcaster: Boolean): Notification {
         createNotificationChannel()
 
-        val openAppIntent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-        }
         val pendingIntent = PendingIntent.getActivity(
-            this, 0, openAppIntent,
+            this, 0, Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+            },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-
-        val endStreamIntent = Intent(this, StreamForegroundService::class.java).apply {
-            action = ACTION_STOP
-        }
-        val endPendingIntent = PendingIntent.getService(
-            this, 1, endStreamIntent,
+        val endStreamIntent = PendingIntent.getBroadcast(
+            this,
+            REQUEST_END_STREAM,
+            Intent(ACTION_END_STREAM).apply { `package` = this@StreamForegroundService.packageName },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val leaveStreamIntent = PendingIntent.getBroadcast(
+            this,
+            REQUEST_LEAVE_CHANNEL,
+            Intent(ACTION_LEAVE_CHANNEL).apply { `package` = this@StreamForegroundService.packageName },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -138,7 +135,7 @@ class StreamForegroundService : Service() {
             .addAction(
                 R.drawable.ic_end,
                 if (isBroadcaster) "End Stream" else "Leave Stream",
-                endPendingIntent
+                if (isBroadcaster) endStreamIntent else leaveStreamIntent
             )
             .setOngoing(true)
             .build()
