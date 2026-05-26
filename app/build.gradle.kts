@@ -27,14 +27,20 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        ndk {
+            //noinspection ChromeOsAbiSupport
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
+
         buildConfigField("String", "CLOUDINARY_CLOUD_NAME", "\"${localProperties["CLOUDINARY_CLOUD_NAME"]}\"")
-        buildConfigField("String", "CLOUDINARY_API_KEY",    "\"${localProperties["CLOUDINARY_API_KEY"]}\"")
+        buildConfigField("String", "CLOUDINARY_API_KEY", "\"${localProperties["CLOUDINARY_API_KEY"]}\"")
         buildConfigField("String", "CLOUDINARY_API_SECRET", "\"${localProperties["CLOUDINARY_API_SECRET"]}\"")
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -100,7 +106,7 @@ dependencies {
     implementation(libs.security.crypto)
 
     //Firebase
-    platform(libs.firebase.bom)
+    implementation(platform(libs.firebase.bom))
     implementation(libs.googleid)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)

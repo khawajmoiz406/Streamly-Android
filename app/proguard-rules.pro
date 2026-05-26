@@ -1,21 +1,27 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Agora
+-keep class io.agora.rtc2.RtcEngine { *; }
+-keep class io.agora.rtc2.** { *; }
+-dontwarn io.agora.**
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Hilt
+-keep class dagger.hilt.internal.** { *; }
+-keep class * extends dagger.hilt.android.HiltAndroidApp
+-keep @dagger.hilt.InstallIn class *
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Serialization
+-keepattributes *Annotation*, Signature, InnerClasses
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+-keepclasseswithmembers class * {
+    @kotlinx.serialization.Serializable <fields>;
+}
+
+-keepclassmembers class **$$serializer {
+    *;
+}
+
+# Firebase
+-dontwarn com.google.firebase.**
+-dontwarn com.google.firestore.**
+
+# Desugar
+-dontwarn com.google.devtools.build.android.desugar.runtime.ThrowableExtension
